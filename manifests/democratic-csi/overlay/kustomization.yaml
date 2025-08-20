@@ -14,4 +14,3 @@ labels:
 
 patches:
   - path: patch_deamonset_csi-manual-democratic-csi-node.yaml
-  - path: patch_sealedsecret.yaml

@@ -11,7 +11,7 @@ spec:
     server: "https://kubernetes.default.svc"
   source:
     path: argocd/core-apps/
-    repoURL: "https://github.com/x-real-ip/gitops"
+    repoURL: "https://github.com/jetri/gitops"
     targetRevision: HEAD
     directory:
       recurse: true

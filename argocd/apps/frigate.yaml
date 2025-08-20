@@ -9,7 +9,7 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: "https://github.com/x-real-ip/gitops"
+    repoURL: "https://github.com/jetri/gitops"
     path: manifests/frigate/overlay
     targetRevision: HEAD
   destination:

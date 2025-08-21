@@ -22,7 +22,7 @@ spec:
     fsType: nfs
     volumeHandle: pv-nfs-jellyfin-media
     volumeAttributes:
-      server: truenas-master.home.lab
+      server: 192.168.18.96
       share: /mnt/home-lab/media
       node_attach_driver: nfs
       provisioner_driver: node-manual
@@ -51,7 +51,7 @@ spec:
     fsType: nfs
     volumeHandle: pv-nfs-jellyfin-music
     volumeAttributes:
-      server: truenas-master.home.lab
+      server: 192.168.18.96
       share: /mnt/home-lab/media/music
       node_attach_driver: nfs
       provisioner_driver: node-manual
@@ -76,7 +76,7 @@ spec:
     fsType: xfs
     volumeHandle: pv-iscsi-jellyfin-config
     volumeAttributes:
-      portal: truenas-master.home.lab:3260
+      portal: 192.168.18.96:3260
       iqn: iqn.2005-10.org.freenas.ctl:jellyfin-config
       lun: "0"
       node_attach_driver: iscsi
@@ -102,7 +102,7 @@ spec:
     fsType: xfs
     volumeHandle: pv-iscsi-jellyfin-cache
     volumeAttributes:
-      portal: truenas-master.home.lab:3260
+      portal: 192.168.18.96:3260
       iqn: iqn.2005-10.org.freenas.ctl:jellyfin-cache
       lun: "0"
       node_attach_driver: iscsi

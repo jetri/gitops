@@ -219,13 +219,7 @@ spec:
               mountPath: /config
             - name: cache
               mountPath: /cache
-          resources: 
-            requests:
-              memory: "512Mi"
-              cpu: "500m"
-            limits:
-              memory: "1Gi"
-              cpu: "1"
+          resources: {}
       restartPolicy: Always
       volumes:
         - name: media

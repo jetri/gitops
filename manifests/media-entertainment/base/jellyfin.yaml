@@ -77,7 +77,7 @@ spec:
     volumeHandle: pv-iscsi-jellyfin-config
     volumeAttributes:
       portal: 192.168.18.96:3260
-      iqn: iqn.2005-10.org.freenas.ctl:jellyfin-config
+      iqn: iqn.2004-10.com.ubuntu:01:52c55542e014
       lun: "0"
       node_attach_driver: iscsi
       provisioner_driver: node-manual
@@ -103,7 +103,7 @@ spec:
     volumeHandle: pv-iscsi-jellyfin-cache
     volumeAttributes:
       portal: 192.168.18.96:3260
-      iqn: iqn.2005-10.org.freenas.ctl:jellyfin-cache
+      iqn: iqn.2004-10.com.ubuntu:01:52c55542e014
       lun: "0"
       node_attach_driver: iscsi
       provisioner_driver: node-manual

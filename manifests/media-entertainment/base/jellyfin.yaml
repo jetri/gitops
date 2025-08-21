@@ -193,17 +193,6 @@ spec:
         runAsUser: 1031
         runAsGroup: 100
         fsGroup: 100
-      initContainers:
-        - name: init-config
-          image: busybox
-          command: ['sh', '-c', 'mkdir -p /config/config /config/log /cache && chown -R 1031:100 /config /cache && chmod -R 755 /config /cache']
-          volumeMounts:
-            - name: config
-              mountPath: /config
-            - name: cache
-              mountPath: /cache
-          securityContext:
-            runAsUser: 0
       containers:
         - name: jellyfin
           image: "docker.io/jellyfin/jellyfin:10"

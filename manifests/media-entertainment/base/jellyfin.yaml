@@ -66,7 +66,7 @@ metadata:
 spec:
   storageClassName: "freenas-iscsi-manual-csi"
   capacity:
-    storage: 5Gi
+    storage: 10Gi
   accessModes:
     - ReadWriteOnce
   persistentVolumeReclaimPolicy: Retain
@@ -92,7 +92,7 @@ metadata:
 spec:
   storageClassName: "freenas-iscsi-manual-csi"
   capacity:
-    storage: 10Gi
+    storage: 5Gi
   accessModes:
     - ReadWriteOnce
   persistentVolumeReclaimPolicy: Retain
@@ -153,7 +153,7 @@ spec:
     - ReadWriteOnce
   resources:
     requests:
-      storage: 5Gi
+      storage: 10Gi
   volumeName: pv-iscsi-jellyfin-config
 
 ---
@@ -169,7 +169,7 @@ spec:
     - ReadWriteOnce
   resources:
     requests:
-      storage: 10Gi
+      storage: 5Gi
   volumeName: pv-iscsi-jellyfin-cache
 
 ---
@@ -250,7 +250,7 @@ metadata:
     app: jellyfin
 spec:
   type: LoadBalancer
-  loadBalancerIP: 10.0.100.241
+  loadBalancerIP: 192.168.18.241
   externalTrafficPolicy: Local
   selector:
     app: jellyfin

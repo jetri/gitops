@@ -20,6 +20,13 @@ kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/st
 https://github.com/bitnami-labs/sealed-secrets/releases
 ```bash
 kubectl apply -f https://github.com/bitnami-labs/sealed-secrets/releases/download/v0.31.0/controller.yaml
+
+# Just get the secret and replace
+❯ kubectl create secret generic smbcredentials-coen \
+  --namespace democratic-csi \
+  --from-literal=mount_flags='username=,password=' \
+  --dry-run=client -o yaml | \
+  kubeseal --format yaml --controller-namespace kube-system > manifests/democratic-csi/overlay/sealedsecret.yaml
 ```
 ## Start ArgoCD WebUI
 

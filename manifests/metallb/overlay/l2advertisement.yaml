@@ -1,0 +1,32 @@
+# Layer 2 configuration for MetalLB
+# This enables MetalLB to use ARP (Address Resolution Protocol) to advertise IP addresses
+# L2 mode is simpler than BGP and works with any standard network setup
+# It doesn't require any special router configuration
+
+apiVersion: metallb.io/v1beta1
+kind: L2Advertisement
+metadata:
+  name: l2-advert
+  namespace: metallb-system
+spec:
+  # List of IP address pools to advertise
+  # These pools are defined in ipaddresspool.yaml
+  ipAddressPools:
+    # private-lan-ips includes:
+    # - 192.168.18.240/32 (private ingress-controller)
+    # - 192.168.18.241/32 (jellyfin)
+    # - 192.168.18.242/32 (tplink-omada-controller)
+    # - 192.168.18.243/32 (home-assistant coiot)
+    # - 192.168.18.244/32 (syncthing)
+    - private-lan-ips
+
+    # public-lan-ips includes:
+    # - 192.168.18.250/32 (public ingress-controller)
+    # - 192.168.18.251/32 (temp counterstrike)
+    - public-lan-ips
+
+  # Note: In L2 mode, MetalLB will:
+  # 1. Watch for service type LoadBalancer
+  # 2. Assign an IP from the configured pools
+  # 3. Use ARP to advertise the IP on your local network
+  # 4. Automatically fail over to another node if the original node goes down

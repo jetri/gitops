@@ -120,7 +120,9 @@ data:
   PUID: "1000"
   PGID: "2000"
   VPN_TYPE: "wireguard"
-  VPN_PROVIDER: "protonvpn"
+  VPN_PROVIDER: "custom"
+  OPENVPN_PROVIDER: "custom"
+  OPENVPN_CONFIG: "nl"
   WIREGUARD_PRIORITY_COUNTRY: "NL"
   WIREGUARD_ALLOWED_IPS: "0.0.0.0/0, ::/0"
 

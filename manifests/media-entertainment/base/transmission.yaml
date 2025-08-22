@@ -4,9 +4,26 @@ apiVersion: v1
 metadata:
   name: pv-iscsi-transmission-config
   labels:
-    app: transmission
-spec:
-  storageClassName: "freenas-iscsi-manual-csi"
+    app: tr  LOCAL_NETWORK: 192.168.18.0/24
+  TRANSMISSION_DOWNLOAD_DIR: /data/completed
+  TRANSMISSION_INCOMPLETE_DIR: /data/incomplete
+  TRANSMISSION_WATCH_DIR: /data/watch
+  TRANSMISSION_DOWNLOAD_QUEUE_SIZE: "4"
+  TZ: Europe/Amsterdam
+  WEBPROXY_ENABLED: "false"
+  CREATE_TUN_DEVICE: "true"
+  HEALTH_CHECK_HOST: "google.com"
+  PUID: "1000"
+  PGID: "2000"
+  VPN_TYPE: "wireguard"
+  VPN_PROVIDER: "protonvpn"
+  PROTONVPN_TIER: "0"
+  OPENVPN_PROVIDER: "protonvpn"
+  OPENVPN_CONFIG_URL: "https://protonvpn.com/nl.ovpn"
+  OPENVPN_CONFIG: "dummy"
+  WIREGUARD_PRIORITY_COUNTRY: "NL"
+  WIREGUARD_ALLOWED_IPS: "0.0.0.0/0, ::/0"
+  DISABLE_PORT_UPDATER: "true"  storageClassName: "freenas-iscsi-manual-csi"
   capacity:
     storage: 5Gi
   accessModes:
@@ -113,16 +130,20 @@ data:
   TRANSMISSION_INCOMPLETE_DIR: /data/incomplete
   TRANSMISSION_WATCH_DIR: /data/watch
   TRANSMISSION_DOWNLOAD_QUEUE_SIZE: "4"
-  TZ: Europe/Amsterdam
+  TZ: Asia/Singapore
   WEBPROXY_ENABLED: "false"
   CREATE_TUN_DEVICE: "true"
   HEALTH_CHECK_HOST: "google.com"
   PUID: "1000"
   PGID: "2000"
+  DISABLE_PORT_UPDATER: "true"
+  VPN_ENABLED: "true"
   VPN_TYPE: "wireguard"
-  VPN_PROVIDER: "custom"
+  VPN_PROVIDER: "protonvpn"
+  PROTONVPN_TIER: "0"
   OPENVPN_PROVIDER: "custom"
-  OPENVPN_CONFIG: "nl"
+  OPENVPN_CONFIG: "none"
+  OPENVPN_CONFIG_URL: "none"
   WIREGUARD_PRIORITY_COUNTRY: "NL"
   WIREGUARD_ALLOWED_IPS: "0.0.0.0/0, ::/0"
 

@@ -283,9 +283,14 @@ metadata:
   annotations:
     traefik.ingress.kubernetes.io/router.entrypoints: "web,websecure"
     traefik.ingress.kubernetes.io/proxy-body-size: "128m"
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
 spec:
+  tls:
+  - hosts:
+    - jellyfin.j3laserna.com
+    secretName: jellyfin-tls
   rules:
-    - host: jellyfin.home.lab
+    - host: jellyfin.j3laserna.com
       http:
         paths:
           - path: /

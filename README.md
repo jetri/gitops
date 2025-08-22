@@ -9,6 +9,11 @@
   - [Start ArgoCD WebUI](#start-argocd-webui)
   - [Uptime Kuma](#uptime-kuma)
 
+## Install Cert Manager
+```bash
+kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.18.2/cert-manager.yaml
+```
+
 ## Install ArgoCD
 https://argo-cd.readthedocs.io/en/stable/getting_started/
 ```bash

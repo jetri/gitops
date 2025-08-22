@@ -6,8 +6,8 @@ namespace: metallb-system
 
 resources:
   - ../base
-  - bgpadvertisement.yaml
-  - bgppeer.yaml
+  # - bgpadvertisement.yaml
+  # - bgppeer.yaml
   - ipaddresspool.yaml
   - l2advertisement.yaml
 

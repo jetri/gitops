@@ -3,4 +3,4 @@ kind: Kustomization
 
 resources:
   - cluster-issuer.yaml
-  - godaddy-secret.yaml
+  - cloudflare-api-token-secret.yaml

@@ -287,10 +287,10 @@ metadata:
 spec:
   tls:
   - hosts:
-    - jellyfin.j3laserna.com
+    - jellyfin.j3laserna.me
     secretName: jellyfin-tls
   rules:
-    - host: jellyfin.j3laserna.com
+    - host: jellyfin.j3laserna.me
       http:
         paths:
           - path: /

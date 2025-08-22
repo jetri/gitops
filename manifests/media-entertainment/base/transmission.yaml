@@ -86,24 +86,6 @@ spec:
   volumeName: pv-iscsi-transmission-config
 
 ---
-apiVersion: bitnami.com/v1alpha1
-kind: SealedSecret
-metadata:
-  name: transmission-protonvpn-cred
-  labels:
-    app: transmission
-spec:
-  encryptedData:
-    PROTONVPN_PASSWORD: AgBEmI2TySjUbtAqxH1R7TT+PKHOs0lkOQWilVMPdlbPbE6nnCPi1/mLXGzMJA6Z4M3z/HH7m9QC7x5jvgJPrAB8Yj88C048HpTHmDaBN39c9KuHwWgMrFEzzBAMnQF5t0Ac6PaKfCLPgTQe89hKv5GQhpv3shV5HGB755IyZW49+YPjTVfJO/TGqmay/LFXcUSQykphMz0ZqMY9/x89ksESnn1bGCWE3cu2ity+gbF1096l1UqeNE7ISw93YINGElqjp6UdvDUt4Lgwfnq2numA9cMwBx3eiB0ADWH6+9hlclnEu+2CQAQingRNH9CYH/DCW7svUKc7IpKJF4zKHBUZAN8xPpkoSFOZAPnJIsSz/n+dTyHBolOhAKO74nq0XbF5wkGkX910bipG6xQ+7dXoKBxnSr7xUSitldCSqh0+a3WRHgWvTS3puE62R+lvu8+UDLiDMD574XJSXRjJDOwsVkHxc5virdo2rLzAMqdX+4YXVqVRToVzlSvQmSyuaGn2/WCtRZnN4stbKuxA+7dPqkD7mUFuWum0Zd2euqTooVWUYB1Iwt/cmX2m7j3bfk6f7AKZv2yXzwaRJ6ZnExHDLp/Fgte1p5dN40r+aLhhnuwDCsKBz3wJs4aBEAe2CzL8MjzzmVRjBtZI/Npi96BUeLrqwFmwMJukPDvUYjQibVrEyNgAmtehyw4mJE4HpIDVNDiH+B+pRsDwfliyUdVz
-    PROTONVPN_USERNAME: AgB7OUovekRM1qWDl3e9avxYA8zIDtIEJT9KwwAORncz7FrEt5T54r6dHCT2HXupkohpotCBBHHTsKwAuQMDHAA+rSQYx1btwce9JVkCkOnht5QNGHum/TO5oeGN2LEPVb9bdNqmz6UWEgOQIRvSguIJ+bHGrC5HkzmMOVUa112+k5BelJH4g4rwH7/V7udcLRxX3xsQN8wAat1/Yf9xWIH5bfrBAY5H8CBSas/TYODuSE2oXcPsPJl3m/cqvjxTmXXUMQvM1G7I+vtzfDahbCGlOMSq3zmdr4aJXqBiLP3knEK96DqgKxmL+o3z1WEnbBjtUrnwH+9G+ckqQWi9medrOU3BYAmnZI8cSszK0LSaf4N294bfgNZ/7DyWUAK1whhALTFiqXB2oNLtZ3efjre4L8URRg/6jdwmysrLxq+SFI1CRgBoKFQtsIfXN4lh1i6X0ANQ5bd/qWOPTgVbAF2BkHj5X938AdVkGiRzM6lMYBMF2L7DJgPHv4RIRnDjnqHIx1tm1c+xv7I+V5DB9OleiK2994+5c38cB1F7OLAb9gDF7RvvCPoKPdrT23rF06nWnr9QqSnmXVxRCQZ9Rh89vMgtI4Ds7drxjBKrGe6qtLpR3u1Kng5ygMJhovPIiME1iAHcKmk+hiX23tR9Yl8vQkYgAYpoK08Z7uW2PrctI+Qa4+mLufEonTq9hbVMD/Mtfk6O5IbUa+9EgXV+eZBfmaSOQQ==
-  template:
-    metadata:
-      name: transmission-protonvpn-cred
-      labels:
-        app: transmission
-    type: Opaque
-
----
 kind: ConfigMap
 apiVersion: v1
 metadata:
@@ -111,27 +93,9 @@ metadata:
   labels:
     app: transmission
 data:
-  LOCAL_NETWORK: 192.168.18.0/24
-  TRANSMISSION_DOWNLOAD_DIR: /data/completed
-  TRANSMISSION_INCOMPLETE_DIR: /data/incomplete
-  TRANSMISSION_WATCH_DIR: /data/watch
-  TRANSMISSION_DOWNLOAD_QUEUE_SIZE: "4"
   TZ: Asia/Singapore
-  WEBPROXY_ENABLED: "false"
-  CREATE_TUN_DEVICE: "true"
-  HEALTH_CHECK_HOST: "google.com"
   PUID: "1000"
   PGID: "2000"
-  DISABLE_PORT_UPDATER: "true"
-  VPN_ENABLED: "true"
-  VPN_TYPE: "wireguard"
-  VPN_PROVIDER: "protonvpn"
-  PROTONVPN_TIER: "0"
-  OPENVPN_PROVIDER: "custom"
-  OPENVPN_CONFIG: "none"
-  OPENVPN_CONFIG_URL: "none"
-  WIREGUARD_PRIORITY_COUNTRY: "NL"
-  WIREGUARD_ALLOWED_IPS: "0.0.0.0/0, ::/0"
 
 ---
 kind: Deployment
@@ -155,19 +119,11 @@ spec:
     spec:
       containers:
         - name: transmission
-          image: "docker.io/haugene/transmission-openvpn:5.3.2"
+          image: "docker.io/linuxserver/transmission:latest"
           imagePullPolicy: Always
-          env:
-            - name: LOG_LEVEL
-              value: "DEBUG"
-            - name: WIREGUARD_LOG_LEVEL
-              value: "DEBUG"
           envFrom:
             - configMapRef:
                 name: transmission-config
-                optional: false
-            - secretRef:
-                name: transmission-protonvpn-cred
                 optional: false
           livenessProbe:
             failureThreshold: 3

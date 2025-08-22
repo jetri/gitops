@@ -9,6 +9,7 @@ resources:
   - bgpadvertisement.yaml
   - bgppeer.yaml
   - ipaddresspool.yaml
+  - l2advertisement.yaml
 
 patches:
   - path: patch_deamonset_speaker.yaml

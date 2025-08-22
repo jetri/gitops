@@ -10,6 +10,11 @@ spec:
     privateKeySecretRef:
       name: letsencrypt-prod-account-key
     solvers:
-    - http01:
-        ingress:
-          class: traefik  # Using Traefik as ingress
+    - dns01:
+        godaddy:
+          apiKeySecretRef:
+            key: key
+            name: cert-manager-godaddy-secret
+          secretKeySecretRef:
+            key: secret
+            name: cert-manager-godaddy-secret

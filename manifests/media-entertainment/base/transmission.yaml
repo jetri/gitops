@@ -4,26 +4,9 @@ apiVersion: v1
 metadata:
   name: pv-iscsi-transmission-config
   labels:
-    app: tr  LOCAL_NETWORK: 192.168.18.0/24
-  TRANSMISSION_DOWNLOAD_DIR: /data/completed
-  TRANSMISSION_INCOMPLETE_DIR: /data/incomplete
-  TRANSMISSION_WATCH_DIR: /data/watch
-  TRANSMISSION_DOWNLOAD_QUEUE_SIZE: "4"
-  TZ: Europe/Amsterdam
-  WEBPROXY_ENABLED: "false"
-  CREATE_TUN_DEVICE: "true"
-  HEALTH_CHECK_HOST: "google.com"
-  PUID: "1000"
-  PGID: "2000"
-  VPN_TYPE: "wireguard"
-  VPN_PROVIDER: "protonvpn"
-  PROTONVPN_TIER: "0"
-  OPENVPN_PROVIDER: "protonvpn"
-  OPENVPN_CONFIG_URL: "https://protonvpn.com/nl.ovpn"
-  OPENVPN_CONFIG: "dummy"
-  WIREGUARD_PRIORITY_COUNTRY: "NL"
-  WIREGUARD_ALLOWED_IPS: "0.0.0.0/0, ::/0"
-  DISABLE_PORT_UPDATER: "true"  storageClassName: "freenas-iscsi-manual-csi"
+    app: transmission
+spec:
+  storageClassName: "freenas-iscsi-manual-csi"
   capacity:
     storage: 5Gi
   accessModes:
@@ -107,7 +90,8 @@ apiVersion: bitnami.com/v1alpha1
 kind: SealedSecret
 metadata:
   name: transmission-protonvpn-cred
-  namespace: media
+  labels:
+    app: transmission
 spec:
   encryptedData:
     PROTONVPN_PASSWORD: AgBEmI2TySjUbtAqxH1R7TT+PKHOs0lkOQWilVMPdlbPbE6nnCPi1/mLXGzMJA6Z4M3z/HH7m9QC7x5jvgJPrAB8Yj88C048HpTHmDaBN39c9KuHwWgMrFEzzBAMnQF5t0Ac6PaKfCLPgTQe89hKv5GQhpv3shV5HGB755IyZW49+YPjTVfJO/TGqmay/LFXcUSQykphMz0ZqMY9/x89ksESnn1bGCWE3cu2ity+gbF1096l1UqeNE7ISw93YINGElqjp6UdvDUt4Lgwfnq2numA9cMwBx3eiB0ADWH6+9hlclnEu+2CQAQingRNH9CYH/DCW7svUKc7IpKJF4zKHBUZAN8xPpkoSFOZAPnJIsSz/n+dTyHBolOhAKO74nq0XbF5wkGkX910bipG6xQ+7dXoKBxnSr7xUSitldCSqh0+a3WRHgWvTS3puE62R+lvu8+UDLiDMD574XJSXRjJDOwsVkHxc5virdo2rLzAMqdX+4YXVqVRToVzlSvQmSyuaGn2/WCtRZnN4stbKuxA+7dPqkD7mUFuWum0Zd2euqTooVWUYB1Iwt/cmX2m7j3bfk6f7AKZv2yXzwaRJ6ZnExHDLp/Fgte1p5dN40r+aLhhnuwDCsKBz3wJs4aBEAe2CzL8MjzzmVRjBtZI/Npi96BUeLrqwFmwMJukPDvUYjQibVrEyNgAmtehyw4mJE4HpIDVNDiH+B+pRsDwfliyUdVz
@@ -115,7 +99,9 @@ spec:
   template:
     metadata:
       name: transmission-protonvpn-cred
-      namespace: media
+      labels:
+        app: transmission
+    type: Opaque
 
 ---
 kind: ConfigMap

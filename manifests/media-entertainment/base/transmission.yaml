@@ -49,7 +49,7 @@ spec:
     volumeHandle: pv-nfs-downloads
     volumeAttributes:
       server: 192.168.18.96
-      share: /mnt/home-lab/media/transmission-downloads
+      share: /mnt/home-lab/media/transmission
       node_attach_driver: nfs
       provisioner_driver: node-manual
 
@@ -94,8 +94,10 @@ metadata:
     app: transmission
 data:
   TZ: Asia/Singapore
-  PUID: "1000"
-  PGID: "2000"
+  PUID: "1000"  # This will make files owned by UID 1000
+  PGID: "2000"  # This will make files owned by GID 2000
+  TRANSMISSION_DOWNLOAD_DIR: "/downloads"
+  TRANSMISSION_WATCH_DIR: "/watch"
 
 ---
 kind: Deployment
@@ -155,8 +157,12 @@ spec:
                 - NET_ADMIN
             privileged: true
           volumeMounts:
-            - mountPath: /data
+            - mountPath: /downloads
               name: transmission-data
+              subPath: downloads
+            - mountPath: /watch
+              name: transmission-data
+              subPath: watch
             - mountPath: /config
               name: transmission-config
       restartPolicy: Always

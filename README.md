@@ -82,3 +82,17 @@ UPDATE monitor SET url = REPLACE(url, 'old', 'new') WHERE url LIKE '%old%';
 
 ## Democratic-csi
 https://jonathangazeley.com/2021/01/05/using-truenas-to-provide-persistent-storage-for-kubernetes/
+
+## Media
+
+### Transmission
+
+```bash
+# Create the secret with your ProtonVPN credentials
+kubectl create secret generic transmission-protonvpn-cred \
+  --namespace=media \
+  --from-literal=PROTONVPN_USERNAME='your-username' \
+  --from-literal=PROTONVPN_PASSWORD='your-password' \
+  --dry-run=client -o yaml | \
+  kubeseal --format yaml > transmission-protonvpn-secret.yaml
+  ```

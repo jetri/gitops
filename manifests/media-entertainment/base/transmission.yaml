@@ -198,8 +198,7 @@ spec:
     app: transmission
   type: ClusterIP
   ports:
-    - name: web  # Changed to match ingress
-      protocol: TCP
+    - protocol: TCP
       port: 9091
       targetPort: 9091
   sessionAffinity: None
@@ -212,10 +211,6 @@ metadata:
   namespace: media
   labels:
     app: transmission
-  annotations:
-    traefik.ingress.kubernetes.io/router.entrypoints: "websecure"
-    traefik.ingress.kubernetes.io/router.tls: "true"
-    traefik.ingress.kubernetes.io/proxy-body-size: "128m"
 spec:
   tls:
     - hosts:
@@ -231,4 +226,4 @@ spec:
               service:
                 name: transmission
                 port:
-                  name: web
+                  number: 9091

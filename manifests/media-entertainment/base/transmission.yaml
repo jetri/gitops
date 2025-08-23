@@ -209,12 +209,14 @@ kind: Ingress
 apiVersion: networking.k8s.io/v1
 metadata:
   name: transmission
+  namespace: media
   labels:
     app: transmission
   annotations:
     traefik.ingress.kubernetes.io/router.entrypoints: "websecure"
     traefik.ingress.kubernetes.io/router.tls: "true"
     traefik.ingress.kubernetes.io/proxy-body-size: "128m"
+    traefik.ingress.kubernetes.io/ssl-redirect: "true"
 spec:
   tls:
   - hosts:
@@ -230,4 +232,4 @@ spec:
               service:
                 name: transmission
                 port:
-                  name: web
+                  number: 9091

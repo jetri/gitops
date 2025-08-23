@@ -96,7 +96,7 @@ data:
   TZ: Asia/Singapore
   PUID: "1000"  # This will make files owned by UID 1000
   PGID: "2000"  # This will make files owned by GID 2000
-  TRANSMISSION_DOWNLOAD_DIR: "/downloads"
+  TRANSMISSION_DOWNLOAD_DIR: "/downloads/complete"
   TRANSMISSION_WATCH_DIR: "/watch"
 
 ---
@@ -119,6 +119,10 @@ spec:
       labels:
         app: transmission
     spec:
+      securityContext:
+        runAsUser: 1000
+        runAsGroup: 2000
+        fsGroup: 2000
       containers:
         - name: transmission
           image: "docker.io/linuxserver/transmission:latest"
@@ -157,8 +161,15 @@ spec:
                 - NET_ADMIN
             privileged: true
           volumeMounts:
-            - mountPath: /downloads
+            - mountPath: /downloads/complete
               name: transmission-data
+              subPath: downloads/complete
+            - mountPath: /downloads/incomplete
+              name: transmission-data
+              subPath: downloads/incomplete
+            - mountPath: /watch
+              name: transmission-data
+              subPath: watch
             - mountPath: /config
               name: transmission-config
       restartPolicy: Always
@@ -200,6 +211,7 @@ metadata:
   annotations:
     traefik.ingress.kubernetes.io/router.entrypoints: "web,websecure"
     traefik.ingress.kubernetes.io/proxy-body-size: "128m"
+    cert-manager.io/cluster-issuer: "letsencrypt-prod-wildcard"
 spec:
   tls:
     - hosts:

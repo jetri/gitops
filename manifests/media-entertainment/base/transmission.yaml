@@ -58,6 +58,7 @@ kind: PersistentVolumeClaim
 apiVersion: v1
 metadata:
   name: pvc-nfs-downloads
+  namespace: media
   labels:
     app: transmission
 spec:
@@ -74,6 +75,7 @@ kind: PersistentVolumeClaim
 apiVersion: v1
 metadata:
   name: pvc-iscsi-transmission-config
+  namespace: media
   labels:
     app: transmission
 spec:
@@ -90,6 +92,7 @@ kind: ConfigMap
 apiVersion: v1
 metadata:
   name: transmission-config
+  namespace: media
   labels:
     app: transmission
 data:
@@ -104,6 +107,7 @@ kind: Deployment
 apiVersion: apps/v1
 metadata:
   name: transmission
+  namespace: media
   labels:
     app: transmission
 spec:
@@ -191,6 +195,7 @@ kind: Service
 apiVersion: v1
 metadata:
   name: transmission
+  namespace: media
   labels:
     app: transmission
 spec:

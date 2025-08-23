@@ -159,10 +159,6 @@ spec:
           volumeMounts:
             - mountPath: /downloads
               name: transmission-data
-              subPath: downloads
-            - mountPath: /watch
-              name: transmission-data
-              subPath: watch
             - mountPath: /config
               name: transmission-config
       restartPolicy: Always

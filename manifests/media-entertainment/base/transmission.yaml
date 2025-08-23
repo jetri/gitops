@@ -127,6 +127,10 @@ spec:
         - name: transmission
           image: "docker.io/linuxserver/transmission:latest"
           imagePullPolicy: Always
+          ports:
+            - name: web
+              containerPort: 9091
+              protocol: TCP
           envFrom:
             - configMapRef:
                 name: transmission-config
@@ -194,7 +198,7 @@ spec:
     app: transmission
   type: ClusterIP
   ports:
-    - name: web
+    - name: web  # Changed to match ingress
       protocol: TCP
       port: 9091
       targetPort: 9091
@@ -211,7 +215,6 @@ metadata:
   annotations:
     traefik.ingress.kubernetes.io/router.entrypoints: "web,websecure"
     traefik.ingress.kubernetes.io/proxy-body-size: "128m"
-    cert-manager.io/cluster-issuer: "letsencrypt-prod-wildcard"
 spec:
   tls:
     - hosts:
@@ -227,4 +230,4 @@ spec:
               service:
                 name: transmission
                 port:
-                  name: https
+                  name: web

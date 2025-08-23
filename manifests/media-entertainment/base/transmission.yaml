@@ -194,10 +194,10 @@ spec:
     app: transmission
   type: ClusterIP
   ports:
-    - name: https
+    - name: web
       protocol: TCP
       port: 9091
-      targetPort: https
+      targetPort: 9091
   sessionAffinity: None
 
 ---

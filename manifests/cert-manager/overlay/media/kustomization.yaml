@@ -6,4 +6,4 @@ namespace: media
 resources:
   - ../../base/wildcard-certificate.yaml
 
-# No patches needed as namespace transformation is automatically applied
+# The namespace directive above will automatically transform all resources to the media namespace

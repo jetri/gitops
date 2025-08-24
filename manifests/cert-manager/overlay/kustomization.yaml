@@ -3,4 +3,4 @@ kind: Kustomization
 
 resources:
   - ../base
-  - media/
+  # Don't include media/ here since it will be deployed by a separate ArgoCD application

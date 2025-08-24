@@ -89,10 +89,34 @@ https://jonathangazeley.com/2021/01/05/using-truenas-to-provide-persistent-stora
 
 ```bash
 # Create the secret with your ProtonVPN credentials
-kubectl create secret generic transmission-protonvpn-cred \
+kubectl create secret generic transmission-vpn-cred \
   --namespace=media \
-  --from-literal=PROTONVPN_USERNAME='your-username' \
-  --from-literal=PROTONVPN_PASSWORD='your-password' \
+  --from-literal=OPENVPN_USERNAME='' \
+  --from-literal=OPENVPN_PASSWORD='' \
   --dry-run=client -o yaml | \
-  kubeseal --format yaml > transmission-protonvpn-secret.yaml
-  ```
+kubectl label --local -f - app=transmission --dry-run=client -o yaml | \
+kubeseal --format yaml
+```
+
+```bash
+ #Prepare Truenas
+mkdir -p /mnt/home-lab/media/transmission/{downloads/complete,downloads/incomplete,watch}
+sudo chown -R 1000:2000 /mnt/home-lab/media/transmission
+sudo chmod -R 775 /mnt/home-lab/media/transmission
+```
+
+```bash
+echo '
+# One-liner to create and seal your ProtonVPN config secret:
+
+kubectl create secret generic protonvpn-config \
+  --namespace=media \
+  --from-file=node-nl.protonvpn.udp.ovpn=/path/to/your/vpn-config.ovpn \
+  --dry-run=client -o yaml | \
+kubeseal --format yaml
+
+# Replace "/path/to/your/vpn-config.ovpn" with the actual path to your ProtonVPN config file
+
+# The output will be the complete sealed secret that you can directly use in your YAML file
+'
+```

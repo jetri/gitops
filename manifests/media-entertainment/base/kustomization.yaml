@@ -5,7 +5,7 @@ resources:
   # - bazarr.yaml
   - jellyfin.yaml
   # - jellyseer.yaml
-  # - media.yaml
+  - media.yaml
   # - prowlarr.yaml
   - radarr.yaml
   # - sonarr.yaml

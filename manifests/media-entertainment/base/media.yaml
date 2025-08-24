@@ -22,8 +22,8 @@ spec:
     fsType: nfs
     volumeHandle: pv-nfs-media
     volumeAttributes:
-      server: truenas-master.lan.stamx.nl
-      share: /mnt/hdd/containers/k8s/plex-media
+      server: 192.168.18.96
+      share: /mnt/home-lab/media
       node_attach_driver: nfs
       provisioner_driver: node-manual
 

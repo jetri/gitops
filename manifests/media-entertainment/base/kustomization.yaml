@@ -9,5 +9,5 @@ resources:
   # - prowlarr.yaml
   # - radarr.yaml
   # - sonarr.yaml
-  # - transmission.yaml
+  - transmission.yaml
 

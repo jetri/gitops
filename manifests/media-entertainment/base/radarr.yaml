@@ -18,7 +18,7 @@ spec:
     fsType: xfs
     volumeHandle: pv-iscsi-radarr-config
     volumeAttributes:
-      portal: truenas-master.lan.stamx.nl:3260
+      portal: 192.168.18.96:3260
       iqn: iqn.2005-10.org.freenas.ctl:radarr-config
       lun: "0"
       node_attach_driver: iscsi
@@ -70,14 +70,20 @@ spec:
         - name: radarr
           image: "lscr.io/linuxserver/radarr:latest"
           imagePullPolicy: Always
-          resources: {}
+          resources:
+            limits:
+              cpu: "2000m"
+              memory: "2Gi"
+            requests:
+              cpu: "100m"
+              memory: "512Mi"
           env:
             - name: PUID
               value: "1000"
             - name: PGID
               value: "2000"
             - name: "TZ"
-              value: "Europe/Amsterdam"
+              value: "Asia/Singapore"
           ports:
             - name: http
               containerPort: 7878
@@ -155,9 +161,8 @@ metadata:
   labels:
     app: radarr
 spec:
-  ingressClassName: nginx-private
   rules:
-    - host: radarr.lan.stamx.nl
+    - host: radarr.j3laserna.me
       http:
         paths:
           - path: "/"
@@ -169,5 +174,5 @@ spec:
                   number: 7878
   tls:
     - hosts:
-        - radarr.lan.stamx.nl
-      secretName: tls-wildcard-lan-stamx-nl
+        - radarr.j3laserna.me
+      secretName: wildcard-j3laserna-me-tls

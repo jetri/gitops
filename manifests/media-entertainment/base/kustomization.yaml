@@ -7,7 +7,7 @@ resources:
   # - jellyseer.yaml
   # - media.yaml
   # - prowlarr.yaml
-  # - radarr.yaml
+  - radarr.yaml
   # - sonarr.yaml
   - transmission.yaml
   # - transmission-certificate.yaml

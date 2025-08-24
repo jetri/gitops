@@ -6,7 +6,7 @@ resources:
   - jellyfin.yaml
   # - jellyseer.yaml
   - media.yaml
-  # - prowlarr.yaml
+  - prowlarr.yaml
   - radarr.yaml
   # - sonarr.yaml
   - transmission.yaml

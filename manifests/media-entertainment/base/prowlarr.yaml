@@ -19,7 +19,7 @@ spec:
     fsType: xfs
     volumeHandle: pv-iscsi-prowlarr-config
     volumeAttributes:
-      portal: truenas-master.lan.stamx.nl:3260
+      portal: 192.168.18.96:3260
       iqn: iqn.2005-10.org.freenas.ctl:prowlarr-config
       lun: "0"
       node_attach_driver: iscsi
@@ -71,14 +71,20 @@ spec:
         - name: prowlarr
           image: "lscr.io/linuxserver/prowlarr:latest"
           imagePullPolicy: Always
-          resources: {}
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "100m"
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
           env:
             - name: PUID
               value: "1000"
             - name: PGID
               value: "2000"
             - name: "TZ"
-              value: "Europe/Amsterdam"
+              value: "Asia/Singapore"
           ports:
             - containerPort: 9696
               protocol: TCP
@@ -138,9 +144,8 @@ metadata:
   labels:
     app: prowlarr
 spec:
-  ingressClassName: nginx-private
   rules:
-    - host: prowlarr.lan.stamx.nl
+    - host: prowlarr.j3laserna.me
       http:
         paths:
           - path: "/"
@@ -152,5 +157,5 @@ spec:
                   number: 9696
   tls:
     - hosts:
-        - prowlarr.lan.stamx.nl
-      secretName: tls-wildcard-lan-stamx-nl
+        - prowlarr.j3laserna.me
+      secretName: wildcard-j3laserna-me-tls

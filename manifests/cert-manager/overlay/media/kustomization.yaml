@@ -3,13 +3,7 @@ kind: Kustomization
 
 namespace: media
 
-resources: []  # We don't need to include base resources again
+resources:
+  - ../../base/wildcard-certificate.yaml
 
-patches:
-  - target:
-      kind: Certificate
-      name: wildcard-j3laserna-me
-    patch: |-
-      - op: replace
-        path: /metadata/namespace
-        value: media
+# No patches needed as namespace transformation is automatically applied

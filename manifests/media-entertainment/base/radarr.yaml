@@ -118,7 +118,7 @@ spec:
             periodSeconds: 5
           volumeMounts:
             - name: downloads
-              mountPath: /data/downloads
+              mountPath: /data
             - name: media
               mountPath: /data/media
             - name: radarr-config

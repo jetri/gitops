@@ -58,6 +58,7 @@ kind: PersistentVolumeClaim
 apiVersion: v1
 metadata:
   name: pvc-nfs-downloads
+  namespace: media
   labels:
     app: transmission
 spec:
@@ -74,6 +75,7 @@ kind: PersistentVolumeClaim
 apiVersion: v1
 metadata:
   name: pvc-iscsi-transmission-config
+  namespace: media
   labels:
     app: transmission
 spec:
@@ -90,6 +92,7 @@ kind: SealedSecret
 apiVersion: bitnami.com/v1alpha1
 metadata:
   name: transmission-vpn-cred
+  namespace: media
   labels:
     app: transmission
 spec:
@@ -126,13 +129,16 @@ kind: ConfigMap
 apiVersion: v1
 metadata:
   name: transmission-config
+  namespace: media
   labels:
     app: transmission
 data:
   LOCAL_NETWORK: 192.168.18.0/24
   OPENVPN_OPTS: --inactive 3600 --ping 10 --ping-exit 60
-  OPENVPN_PROVIDER: custom
-  OPENVPN_CONFIG: sg-19.protonvpn.udp.ovpn
+  OPENVPN_PROVIDER: CUSTOM
+  # OPENVPN_CONFIG: sg-19.protonvpn.udp
+  # VPN_CONFIG_SOURCE: external
+  # VPN_PROVIDER_HOME: /config/openvpn/custom
   TRANSMISSION_DOWNLOAD_DIR: /data/completed
   TRANSMISSION_INCOMPLETE_DIR: /data/incomplete
   TRANSMISSION_WATCH_DIR: /data/watch
@@ -149,6 +155,7 @@ kind: Deployment
 apiVersion: apps/v1
 metadata:
   name: transmission
+  namespace: media
   labels:
     app: transmission
 spec:
@@ -164,10 +171,60 @@ spec:
       labels:
         app: transmission
     spec:
+      initContainers:
+        - name: copy-vpn-config
+          image: busybox:latest
+          command:
+            - sh
+            - -c
+            - |
+              # Create directory structure
+              mkdir -p /config/openvpn/custom/
+              
+              # Copy the config files to the writable location
+              cp /etc/openvpn/secret/* /config/openvpn/custom/
+              
+              # Set permissions
+              chmod 644 /config/openvpn/custom/*
+              
+              # Debug output
+              echo "Files in /config/openvpn/custom/:"
+              ls -la /config/openvpn/custom/
+          volumeMounts:
+            - mountPath: /etc/openvpn/secret/
+              name: protonvpn-config
+              readOnly: true
+            - mountPath: /config
+              name: transmission-config
+            - mountPath: /etc/openvpn/custom
+              name: custom-config-dir
+        - name: prepare-custom-dir
+          image: busybox:latest
+          command:
+            - sh
+            - -c
+            - |
+              # Copy from the writable config location to the custom dir
+              cp /config/openvpn/custom/* /etc/openvpn/custom/
+              chmod 644 /etc/openvpn/custom/*
+              echo "Files in /etc/openvpn/custom/:"
+              ls -la /etc/openvpn/custom/
+          volumeMounts:
+            - mountPath: /config
+              name: transmission-config
+            - mountPath: /etc/openvpn/custom
+              name: custom-config-dir
       containers:
         - name: transmission
           image: "docker.io/haugene/transmission-openvpn:latest"
           imagePullPolicy: Always
+          env:
+            - name: OPENVPN_PROVIDER
+              value: "CUSTOM"
+            - name: OPENVPN_CONFIG
+              value: "sg-19.protonvpn.udp"
+            - name: VPN_CONFIG_SOURCE
+              value: "/config/openvpn/custom"
           envFrom:
             - configMapRef:
                 name: transmission-config
@@ -202,8 +259,12 @@ spec:
               name: transmission-data
             - mountPath: /config
               name: transmission-config
-            - mountPath: /etc/openvpn/custom/
-              name: protonvpn-config
+            # Remove this line that mounts the empty directory to /etc/openvpn
+            # - mountPath: /etc/openvpn
+            #   name: openvpn-etc
+            # Instead, mount just the custom directory
+            - mountPath: /etc/openvpn/custom
+              name: custom-config-dir
           resources:
             limits:
               cpu: "1"
@@ -223,12 +284,19 @@ spec:
         - name: protonvpn-config
           secret:
             secretName: protonvpn-config
+        # Replace the empty dir with a volume that points to our config directory
+        - name: custom-config-dir
+          emptyDir: {}
+        # Remove this volume
+        # - name: openvpn-etc
+        #   emptyDir: {}
 
 ---
 kind: Service
 apiVersion: v1
 metadata:
   name: transmission
+  namespace: media
   labels:
     app: transmission
 spec:

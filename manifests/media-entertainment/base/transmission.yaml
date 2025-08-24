@@ -309,6 +309,10 @@ metadata:
   name: transmission
   labels:
     app: transmission
+  annotations:
+    traefik.ingress.kubernetes.io/router.entrypoints: "websecure"
+    traefik.ingress.kubernetes.io/router.tls: "true"
+    traefik.ingress.kubernetes.io/proxy-body-size: "128m"
 spec:
   rules:
     - host: transmission.j3laserna.me

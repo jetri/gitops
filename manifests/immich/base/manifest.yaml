@@ -48,7 +48,7 @@ spec:
     fsType: nfs
     volumeHandle: pv-nfs-immich-library
     volumeAttributes:
-      server: truenas-master.lan.stamx.nl
+      server: 192.168.18.96
       share: /mnt/home-lab/containers/immich
       node_attach_driver: nfs
       provisioner_driver: node-manual

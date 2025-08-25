@@ -10,7 +10,7 @@ spec:
     namespace: ""
     server: "https://kubernetes.default.svc"
   source:
-    path: argocd/jellyfin
+    path: argocd/new-apps
     repoURL: "https://github.com/jetri/gitops"
     targetRevision: HEAD
     directory:

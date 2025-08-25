@@ -87,6 +87,11 @@ https://jonathangazeley.com/2021/01/05/using-truenas-to-provide-persistent-stora
 
 ### Transmission
 
+Might need to do this for the transmission folders
+```bash
+sudo chown 1000:2000 completed watch
+```
+
 ```bash
 # Create the secret with your ProtonVPN credentials
 kubectl create secret generic transmission-vpn-cred \

@@ -18,7 +18,7 @@ spec:
     fsType: xfs
     volumeHandle: pv-iscsi-immich-db
     volumeAttributes:
-      portal: truenas-master.lan.stamx.nl:3260
+      portal: 192.168.18.96:3260
       iqn: iqn.2005-10.org.freenas.ctl:immich-database
       lun: "0"
       node_attach_driver: iscsi
@@ -49,7 +49,7 @@ spec:
     volumeHandle: pv-nfs-immich-library
     volumeAttributes:
       server: truenas-master.lan.stamx.nl
-      share: /mnt/ssd/containers/k8s/immich-media
+      share: /mnt/home-lab/containers/immich
       node_attach_driver: nfs
       provisioner_driver: node-manual
 
@@ -95,7 +95,7 @@ metadata:
     app: immich
 spec:
   encryptedData:
-    DB_PASSWORD: AgAzGgjaCENhVYjhsQMCxyDdpzS7IyQ8jtPHtwKZuw+4zxAEl3E200MN0ZoXQHhCze0VU4amE3v79KYPSXDGPH2liGcusBHTRurNGJ0Y3TwhaiZjDcXqhRwOqD0uCPADHNeSdEbXNB+uytL7PLDoEromPQ2XEivpJtV/xHWS78ig3q1bp9d6p2LWx5goJfHKyCL8rY75ihJy3kpir/kk9e1jp19h2VGhLg5FnMutrgoTe6tOFW69JtBveOrCrj/E7hH5VJnsFJD+2uRv+Bd1AauZkFeZmxHHs1UeuNTXYr4sXdxFW5maRR+g/dIApfgeMyWnMaL5NQLXK6wjRSVqkjrPiCLXHEI2jVJGeR5zP8u8c6rkj0kR3DIsA41OssJKw6KQxCbVlheUYbUgZJZRatqVanEKy8Vg9+uCtrAyGRUDJDC4w9fgZ4tvDrw+EtrsXMxTuZoCtoQkMeXEuQmc/YdBDE8hZFGMy3Hozzoqs84/D3RL4D6i9K8mrPb36y19SAv9tjqb6UTBwzwu2+Uxn77l4z/iQ8FGFzVZOGc4AhIKP9Oif14Nebsw4OlBbcDU96wHbBMvxfaG9gfAcMj3zSx5D+omzRMWupRnNOJg0IjlHFdQhGcz9RP6dTOv0uANuKldhZ9/3tOAaXDqI6a/djm5HdCrCu4Rg+5krayRLkimdQctsEUzPCuZQI3xXgKQtFc+oh6PIJBXVvk=
+    DB_PASSWORD: AgBE1cb6fmQnkq/5A2VAMxpanPDnJzAUfyLZOwee3bejATvx1o63JMYh+Q+bRD6QoNp/YzobctQMqPdsqK+Uzy2aVv6DXQNeFXe2R/w3ehjDZIQdyt621Tdcb/mjM6YxhsF1vpJ8TCKvRy8g5c8zSTE85v+au4abApZj6SR1CTgVU5ymNnP5vsn/tInqkJwVtLwY9UMeRDtst5nj0il262rXOsR7VUchl2/Scc6RHZA1JT11Y46OugENnrJBT7kaRtAuUmx+PdO+nbAis4iH0Wn+yHPNIQFVJkGSMlaKU7+Obx6DwJdnF40RaD8fGval3sEv0aFcn0cd/tqso6/kkqbCro29yPTtm80xkBGq8z4LN6Uiu+Gp4+NRZIppFDLEUpjznWdIZxFSuSHJdTc5mq/69SoFzqCsbWMj8mUJxC0TF31tIjld+ULaduEZwSuMyGTxH02r+kuG2f4SYxsTBQ/iQqqcSBtkR3g/9W2OEuu913Xapyuo/iVmZGOhMc3FG0V/78ev9GT5BkSoZpVlacWQogRZO0FBmiTidG8Bj6H6RitEgAQlgKuH+kg34m47qM7OLIAOhT285b4VhfUzUU9AUgxzC5LyKYijyJrv1sZ+cAuLWE4Tyzyn6PjbubJAiSg0h3irKM/VuVn1l3pzIgSDENvkYCvgzD5nMaF5j416wJNHj2JYD3nbVe2XOj3STbBrHz/zN8eJs00=
   template:
     type: Opaque
     metadata:
@@ -169,7 +169,13 @@ spec:
           volumeMounts:
             - name: pgdata
               mountPath: /var/lib/postgresql/data
-          resources: {}
+          resources:
+            requests:
+              memory: "512Mi"
+              cpu: "250m"
+            limits:
+              memory: "1Gi"
+              cpu: "500m"
       volumes:
         - name: pgdata
           persistentVolumeClaim:
@@ -273,7 +279,13 @@ spec:
               mountPath: /opt/immich
             - name: library
               mountPath: /usr/src/app/upload
-          resources: {}
+          resources:
+            requests:
+              memory: "512Mi"
+              cpu: "250m"
+            limits:
+              memory: "1Gi"
+              cpu: "500m"
       volumes:
         - name: immich-config
           configMap:
@@ -360,7 +372,13 @@ spec:
           volumeMounts:
             - name: cache
               mountPath: /cache
-          resources: {}
+          resources:
+            requests:
+              memory: "512Mi"
+              cpu: "250m"
+            limits:
+              memory: "2Gi"
+              cpu: "1000m"
       volumes:
         - name: cache
           emptyDir: {}
@@ -422,11 +440,12 @@ metadata:
   labels:
     app: immich
   annotations:
+    traefik.ingress.kubernetes.io/router.entrypoints: "websecure"
+    traefik.ingress.kubernetes.io/router.tls: "true"
     nginx.ingress.kubernetes.io/proxy-body-size: 20480m
 spec:
-  ingressClassName: nginx-private
   rules:
-    - host: "photos.lan.stamx.nl"
+    - host: "immich.j3laserna.me"
       http:
         paths:
           - path: "/"

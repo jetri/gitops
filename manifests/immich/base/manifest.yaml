@@ -54,6 +54,35 @@ spec:
       provisioner_driver: node-manual
 
 ---
+kind: PersistentVolume
+apiVersion: v1
+metadata:
+  name: pv-nfs-synology-library
+  labels:
+    app: immich
+spec:
+  storageClassName: "freenas-nfs-manual-csi"
+  capacity:
+    storage: 4Ti
+  accessModes:
+    - ReadOnlyMany
+  persistentVolumeReclaimPolicy: Retain
+  mountOptions:
+    - nfsvers=4
+    - nolock
+    - noatime
+  csi:
+    driver: org.democratic-csi.node-manual
+    readOnly: true
+    fsType: nfs
+    volumeHandle: pv-nfs-synology-library
+    volumeAttributes:
+      server: 192.168.18.96
+      share: /mnt/home-lab/synology/media
+      node_attach_driver: nfs
+      provisioner_driver: node-manual
+
+---
 kind: PersistentVolumeClaim
 apiVersion: v1
 metadata:
@@ -84,6 +113,22 @@ spec:
     requests:
       storage: 600Gi
   volumeName: pv-nfs-immich-library
+
+---
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: pvc-nfs-synology-library
+  labels:
+    app: immich
+spec:
+  storageClassName: freenas-nfs-manual-csi
+  accessModes:
+    - ReadOnlyMany
+  resources:
+    requests:
+      storage: 4Ti
+  volumeName: pv-nfs-synology-library
 
 ---
 kind: SealedSecret
@@ -279,6 +324,8 @@ spec:
               mountPath: /opt/immich
             - name: library
               mountPath: /usr/src/app/upload
+            - name: synology
+              mountPath: /synology/media
           resources:
             requests:
               memory: "512Mi"
@@ -293,6 +340,9 @@ spec:
         - name: library
           persistentVolumeClaim:
             claimName: pvc-nfs-immich-library
+        - name: synology
+          persistentVolumeClaim:
+            claimName: pvc-nfs-synology-library
 
 ---
 kind: Deployment

@@ -125,3 +125,65 @@ kubeseal --format yaml
 # The output will be the complete sealed secret that you can directly use in your YAML file
 '
 ```
+
+## Deleting Applications
+
+Deleting Kubernetes Resources in Order
+When deleting resources from your Kubernetes cluster, following the proper order helps prevent issues like orphaned resources or unexpected behavior. Based on your ArgoCD app-of-apps setup, here's the recommended deletion order:
+
+Deletion Order for Kubernetes Resources
+Workloads/Applications first:
+
+Deployments, StatefulSets, DaemonSets
+Jobs, CronJobs
+Pods (usually handled by removing their controllers)
+Network resources:
+
+Ingresses
+Services
+Configuration resources:
+
+ConfigMaps
+Secrets
+Storage resources:
+
+PersistentVolumeClaims (PVCs)
+PersistentVolumes (PVs) - if you're managing these directly
+RBAC and security resources:
+
+ServiceAccounts
+Roles, ClusterRoles
+RoleBindings, ClusterRoleBindings
+Custom resources and controllers:
+
+ArgoCD Applications
+Any other custom resources
+Namespaces (only after all resources within them are removed)
+
+For Your ArgoCD Setup
+Since you're using ArgoCD with an app-of-apps pattern:
+
+Delete the child applications first:
+
+1. Delete the child applications first:
+```bash
+# List all applications managed by your app-of-apps
+kubectl get applications -n argocd
+
+# Delete each child application
+kubectl delete application -n argocd [child-app-name]
+```
+
+2. Then delete the app-of-apps application:
+```bash
+kubectl delete -f /Users/j3/Documents/homelab/gitops/argocd/app-of-apps.yaml
+```
+
+3. Alternatively, use the ArgoCD CLI:
+```bash
+# Delete all applications, which cascades to managed resources
+argocd app delete --all
+
+# Or delete app-of-apps specifically
+argocd app delete app-of-apps
+```

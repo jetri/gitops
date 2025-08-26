@@ -443,9 +443,11 @@ spec:
             requests:
               memory: "512Mi"
               cpu: "250m"
+              nvidia.com/gpu: 1   # Request 1 GPU
             limits:
               memory: "2Gi"
               cpu: "1000m"
+              nvidia.com/gpu: 1   # Request 1 GPU
       volumes:
         - name: cache
           emptyDir: {}

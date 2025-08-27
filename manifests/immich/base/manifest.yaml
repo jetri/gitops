@@ -189,15 +189,15 @@ spec:
       labels:
         app: immich-database
     spec:
-      affinity:
-        nodeAffinity:
-          requiredDuringSchedulingIgnoredDuringExecution:
-            nodeSelectorTerms:
-            - matchExpressions:
-              - key: kubernetes.io/hostname
-                operator: In
-                values:
-                - gpu-node-1
+      # affinity:
+      #   nodeAffinity:
+      #     requiredDuringSchedulingIgnoredDuringExecution:
+      #       nodeSelectorTerms:
+      #       - matchExpressions:
+      #         - key: kubernetes.io/hostname
+      #           operator: In
+      #           values:
+      #           - gpu-node-1
       containers:
         - name: immich-postgres
           image: "ghcr.io/immich-app/postgres:14-vectorchord0.3.0-pgvectors0.2.0"
@@ -300,10 +300,10 @@ spec:
                 secretKeyRef:
                   name: immich-secret-env
                   key: DB_PASSWORD
-            # - name: NVIDIA_DRIVER_CAPABILITIES
-            #   value: "compute,utility,video"
-            # - name: NVIDIA_VISIBLE_DEVICES
-            #   value: "all"
+            - name: NVIDIA_DRIVER_CAPABILITIES
+              value: "compute,utility,video"
+            - name: NVIDIA_VISIBLE_DEVICES
+              value: "all"
           envFrom:
             - configMapRef:
                 name: immich-env
@@ -343,11 +343,11 @@ spec:
             requests:
               memory: "512Mi"
               cpu: "250m"
-              # nvidia.com/gpu: 1
+              nvidia.com/gpu: 1
             limits:
               memory: "1Gi"
               cpu: "500m"
-              # nvidia.com/gpu: 1
+              nvidia.com/gpu: 1
       volumes:
         - name: immich-config
           configMap:
@@ -378,14 +378,14 @@ spec:
         app: immich-machine-learning
     spec:
       affinity:
-        nodeAffinity:
-          requiredDuringSchedulingIgnoredDuringExecution:
-            nodeSelectorTerms:
-            - matchExpressions:
-              - key: kubernetes.io/hostname
-                operator: In
-                values:
-                - gpu-node-1
+        # nodeAffinity:
+        #   requiredDuringSchedulingIgnoredDuringExecution:
+        #     nodeSelectorTerms:
+        #     - matchExpressions:
+        #       - key: kubernetes.io/hostname
+        #         operator: In
+        #         values:
+        #         - gpu-node-1
         podAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:
             - labelSelector:
@@ -414,14 +414,14 @@ spec:
                   key: DB_PASSWORD
             - name: TRANSFORMERS_CACHE
               value: /cache
-            - name: CUDA_VISIBLE_DEVICES
-              value: "0"
-            - name: NODE_OPTIONS
-              value: "--max-old-space-size=4096"
-            - name: NVIDIA_VISIBLE_DEVICES
-              value: all
-            - name: NVIDIA_DRIVER_CAPABILITIES
-              value: compute,utility,video
+            # - name: CUDA_VISIBLE_DEVICES
+            #   value: "0"
+            # - name: NODE_OPTIONS
+            #   value: "--max-old-space-size=4096"
+            # - name: NVIDIA_VISIBLE_DEVICES
+            #   value: all
+            # - name: NVIDIA_DRIVER_CAPABILITIES
+            #   value: compute,utility,video
           envFrom:
             - configMapRef:
                 name: immich-env
@@ -457,11 +457,11 @@ spec:
             requests:
               memory: "512Mi"
               cpu: "250m"
-              nvidia.com/gpu: 1   # Request 1 GPU
+              # nvidia.com/gpu: 1   # Request 1 GPU
             limits:
               memory: "2Gi"
               cpu: "1000m"
-              nvidia.com/gpu: 1   # Request 1 GPU
+              # nvidia.com/gpu: 1   # Request 1 GPU
       volumes:
         - name: cache
           emptyDir: {}

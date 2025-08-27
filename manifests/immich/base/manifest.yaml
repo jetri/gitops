@@ -243,6 +243,7 @@ metadata:
   labels:
     app: immich-server
 spec:
+  replicas: 2
   strategy:
     type: Recreate
   selector:

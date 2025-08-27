@@ -52,7 +52,7 @@
       "concurrency": 2
     },
     "videoConversion": {
-      "concurrency": 2
+      "concurrency": 1
     },
     "notifications": {
       "concurrency": 5

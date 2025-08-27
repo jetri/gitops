@@ -2,7 +2,7 @@
   "ffmpeg": {
     "crf": 23,
     "threads": 0,
-    "preset": "ultrafast",
+    "preset": "p2",
     "targetVideoCodec": "h264",
     "acceptedVideoCodecs": ["h264"],
     "targetAudioCodec": "aac",
@@ -17,11 +17,11 @@
     "temporalAQ": false,
     "cqMode": "auto",
     "twoPass": false,
-    "preferredHwDevice": "auto",
+    "preferredHwDevice": "cuda:0",
     "transcode": "required",
     "tonemap": "hable",
-    "accel": "disabled",
-    "accelDecode": false
+    "accel": "nvenc",
+    "accelDecode": true
   },
   "job": {
     "backgroundTask": {

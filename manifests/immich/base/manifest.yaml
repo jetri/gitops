@@ -300,6 +300,10 @@ spec:
                 secretKeyRef:
                   name: immich-secret-env
                   key: DB_PASSWORD
+            - name: NVIDIA_DRIVER_CAPABILITIES
+              value: "compute,utility,video"
+            - name: NVIDIA_VISIBLE_DEVICES
+              value: "all"
           envFrom:
             - configMapRef:
                 name: immich-env
@@ -339,9 +343,11 @@ spec:
             requests:
               memory: "512Mi"
               cpu: "250m"
+              nvidia.com/gpu: 1
             limits:
               memory: "1Gi"
               cpu: "500m"
+              nvidia.com/gpu: 1
       volumes:
         - name: immich-config
           configMap:
@@ -408,6 +414,10 @@ spec:
                   key: DB_PASSWORD
             - name: TRANSFORMERS_CACHE
               value: /cache
+            - name: CUDA_VISIBLE_DEVICES
+              value: "0"
+            - name: NODE_OPTIONS
+              value: "--max-old-space-size=4096"
           envFrom:
             - configMapRef:
                 name: immich-env

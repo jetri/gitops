@@ -418,6 +418,10 @@ spec:
               value: "0"
             - name: NODE_OPTIONS
               value: "--max-old-space-size=4096"
+            - name: NVIDIA_VISIBLE_DEVICES
+              value: all
+            - name: NVIDIA_DRIVER_CAPABILITIES
+              value: compute,utility,video
           envFrom:
             - configMapRef:
                 name: immich-env

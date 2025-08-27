@@ -468,7 +468,7 @@ spec:
               mountPath: /cache
           resources:
             requests:
-              memory: "512Mi"
+              memory: "1Gi"
               cpu: "250m"
               # nvidia.com/gpu: 1   # Request 1 GPU
             limits:

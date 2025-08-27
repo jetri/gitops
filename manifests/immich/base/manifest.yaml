@@ -171,6 +171,7 @@ data:
   PUID: "1000"
   PGID: "2000"
   IMMICH_CONFIG_FILE: "/opt/immich/immich-config.json"
+  IMMICH_LOG_LEVEL: "debug"
 
 ---
 apiVersion: apps/v1

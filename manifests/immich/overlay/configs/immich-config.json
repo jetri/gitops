@@ -2,7 +2,7 @@
   "ffmpeg": {
     "crf": 23,
     "threads": 0,
-    "preset": "p2",
+    "preset": "ultrafast",
     "targetVideoCodec": "h264",
     "acceptedVideoCodecs": ["h264"],
     "targetAudioCodec": "aac",
@@ -17,11 +17,11 @@
     "temporalAQ": false,
     "cqMode": "auto",
     "twoPass": false,
-    "preferredHwDevice": "cuda:0",
+    "preferredHwDevice": "auto",
     "transcode": "required",
     "tonemap": "hable",
-    "accel": "nvenc",
-    "accelDecode": true
+    "accel": "disabled",
+    "accelDecode": false
   },
   "job": {
     "backgroundTask": {
@@ -31,7 +31,7 @@
       "concurrency": 2
     },
     "metadataExtraction": {
-      "concurrency": 5
+      "concurrency": 1
     },
     "faceDetection": {
       "concurrency": 2
@@ -40,19 +40,19 @@
       "concurrency": 5
     },
     "sidecar": {
-      "concurrency": 5
+      "concurrency": 1
     },
     "library": {
-      "concurrency": 5
+      "concurrency": 1
     },
     "migration": {
-      "concurrency": 5
+      "concurrency": 1
     },
     "thumbnailGeneration": {
-      "concurrency": 3
+      "concurrency": 1
     },
     "videoConversion": {
-      "concurrency": 2
+      "concurrency": 1
     },
     "notifications": {
       "concurrency": 5

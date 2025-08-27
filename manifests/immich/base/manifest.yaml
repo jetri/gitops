@@ -244,7 +244,7 @@ metadata:
   labels:
     app: immich-server
 spec:
-  replicas: 2
+  replicas: 1
   strategy:
     type: Recreate
   selector:
@@ -352,11 +352,11 @@ spec:
             requests:
               memory: "1Gi"
               cpu: "1000m"
-              nvidia.com/gpu: 0.5
+              nvidia.com/gpu: 1
             limits:
               memory: "2Gi"
               cpu: "1500m"
-              nvidia.com/gpu: 0.5
+              nvidia.com/gpu: 1
       volumes:
         - name: immich-config
           configMap:

@@ -253,6 +253,7 @@ spec:
       labels:
         app: immich-server
     spec:
+      runtimeClassName: nvidia
       affinity:
         podAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:
@@ -339,6 +340,12 @@ spec:
               mountPath: /usr/src/app/upload
             - name: synology
               mountPath: /synology/media
+            - name: nvidia-libraries
+              mountPath: /usr/lib/x86_64-linux-gnu/libcuda.so.1
+              subPath: libcuda.so.1
+            - name: nvidia-libraries
+              mountPath: /usr/lib/x86_64-linux-gnu/libnvidia-ml.so.1
+              subPath: libnvidia-ml.so.1
           resources:
             requests:
               memory: "512Mi"
@@ -358,6 +365,10 @@ spec:
         - name: synology
           persistentVolumeClaim:
             claimName: pvc-nfs-synology-library
+        - name: nvidia-libraries
+          hostPath:
+            path: /usr/lib/x86_64-linux-gnu
+            type: Directory
 
 ---
 kind: Deployment

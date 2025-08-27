@@ -31,7 +31,7 @@
       "concurrency": 2
     },
     "metadataExtraction": {
-      "concurrency": 1
+      "concurrency": 2
     },
     "faceDetection": {
       "concurrency": 2
@@ -49,10 +49,10 @@
       "concurrency": 1
     },
     "thumbnailGeneration": {
-      "concurrency": 1
+      "concurrency": 2
     },
     "videoConversion": {
-      "concurrency": 1
+      "concurrency": 2
     },
     "notifications": {
       "concurrency": 5

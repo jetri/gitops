@@ -31,7 +31,7 @@
       "concurrency": 2
     },
     "metadataExtraction": {
-      "concurrency": 2
+      "concurrency": 1
     },
     "faceDetection": {
       "concurrency": 2

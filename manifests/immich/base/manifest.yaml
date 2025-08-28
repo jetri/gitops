@@ -390,7 +390,7 @@ spec:
             name: immich-config
         - name: library
           persistentVolumeClaim:
-            claimName: pvc-nfs-immich-library
+            claimName: pvc-nfs-immich-lb
         - name: synology
           persistentVolumeClaim:
             claimName: pvc-nfs-synology-library

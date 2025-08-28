@@ -198,6 +198,26 @@ spec:
                 operator: In
                 values:
                 - gpu-node-1
+      initContainers:
+        - name: check-data-dir
+          image: "ghcr.io/immich-app/postgres:14-vectorchord0.3.0-pgvectors0.2.0"
+          imagePullPolicy: Always
+          command:
+            - /bin/sh
+            - -c
+            - |
+              echo "=== Checking /var/lib/postgresql/data directory ==="
+              ls -la /var/lib/postgresql/data/
+              echo "=== Directory size ==="
+              du -sh /var/lib/postgresql/data/
+              echo "=== Subdirectories and sizes ==="
+              du -sh /var/lib/postgresql/data/*/ 2>/dev/null || echo "No subdirectories found"
+              echo "=== File count ==="
+              find /var/lib/postgresql/data -type f | wc -l
+              echo "=== Done checking ==="
+          volumeMounts:
+            - name: pgdata
+              mountPath: /var/lib/postgresql/data
       containers:
         - name: immich-postgres
           image: "ghcr.io/immich-app/postgres:14-vectorchord0.3.0-pgvectors0.2.0"

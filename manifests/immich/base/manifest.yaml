@@ -200,7 +200,7 @@ spec:
                 - gpu-node-1
       initContainers:
         - name: check-data-dir
-          image: "ghcr.io/immich-app/postgres:14-vectorchord0.3.0-pgvectors0.2.0"
+          image: busybox
           imagePullPolicy: Always
           command:
             - /bin/sh

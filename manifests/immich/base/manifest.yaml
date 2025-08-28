@@ -220,9 +220,9 @@ spec:
                 configMapKeyRef:
                   name: immich-env
                   key: DB_DATABASE_NAME
-          # volumeMounts:
-          #   - name: pgdata
-          #     mountPath: /var/lib/postgresql/data
+          volumeMounts:
+            - name: pgdata
+              mountPath: /var/lib/postgresql/data
           resources:
             requests:
               memory: "512Mi"

@@ -382,7 +382,7 @@ spec:
               nvidia.com/gpu: 1
             limits:
               memory: "2Gi"
-              cpu: "1750m"
+              cpu: "2000m"
               nvidia.com/gpu: 1
       volumes:
         - name: immich-config

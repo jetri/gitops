@@ -28,7 +28,7 @@ spec:
 kind: PersistentVolume
 apiVersion: v1
 metadata:
-  name: pv-nfs-immich-library
+  name: pv-nfs-immich-lb
   labels:
     app: immich
 spec:
@@ -46,10 +46,10 @@ spec:
     driver: org.democratic-csi.node-manual
     readOnly: false
     fsType: nfs
-    volumeHandle: pv-nfs-immich-library
+    volumeHandle: pv-nfs-immich-lb
     volumeAttributes:
       server: 192.168.18.96
-      share: /mnt/home-lab/containers/immich
+      share: /mnt/home-lab/containers/immich-library
       node_attach_driver: nfs
       provisioner_driver: node-manual
 
@@ -102,7 +102,7 @@ spec:
 kind: PersistentVolumeClaim
 apiVersion: v1
 metadata:
-  name: pvc-nfs-immich-library
+  name: pvc-nfs-immich-lb
   labels:
     app: immich
 spec:
@@ -112,7 +112,7 @@ spec:
   resources:
     requests:
       storage: 600Gi
-  volumeName: pv-nfs-immich-library
+  volumeName: pv-nfs-immich-lb
 
 ---
 kind: PersistentVolumeClaim

@@ -253,7 +253,7 @@ spec:
       volumes:
         - name: pgdata
           persistentVolumeClaim:
-            claimName: pvc-iscsi-immich-db
+            claimName: pvc-iscsi-immich-database
 
 ---
 kind: Deployment

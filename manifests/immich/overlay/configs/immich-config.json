@@ -34,7 +34,7 @@
       "concurrency": 3
     },
     "faceDetection": {
-      "concurrency": 
+      "concurrency": 1
     },
     "search": {
       "concurrency": 3

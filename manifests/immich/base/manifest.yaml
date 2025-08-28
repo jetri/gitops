@@ -2,7 +2,7 @@
 kind: PersistentVolume
 apiVersion: v1
 metadata:
-  name: pv-iscsi-immich-db
+  name: pv-iscsi-immich-database
   labels:
     app: immich-database
 spec:
@@ -16,7 +16,7 @@ spec:
     driver: org.democratic-csi.node-manual
     readOnly: false
     fsType: xfs
-    volumeHandle: pv-iscsi-immich-db
+    volumeHandle: pv-iscsi-immich-database
     volumeAttributes:
       portal: 192.168.18.96:3260
       iqn: iqn.2005-10.org.freenas.ctl:immich-db
@@ -86,7 +86,7 @@ spec:
 kind: PersistentVolumeClaim
 apiVersion: v1
 metadata:
-  name: pvc-iscsi-immich-db
+  name: pvc-iscsi-immich-database
   labels:
     app: immich-database
 spec:
@@ -96,7 +96,7 @@ spec:
   resources:
     requests:
       storage: 10Gi
-  volumeName: pv-iscsi-immich-db
+  volumeName: pv-iscsi-immich-database
 
 ---
 kind: PersistentVolumeClaim

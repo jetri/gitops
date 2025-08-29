@@ -565,7 +565,7 @@ metadata:
   annotations:
     traefik.ingress.kubernetes.io/router.entrypoints: "websecure"
     traefik.ingress.kubernetes.io/router.tls: "true"
-    traefik.ingress.kubernetes.io/proxy-body-size: "0"
+    traefik.ingress.kubernetes.io/max-body-size: "20480m"
 spec:
   rules:
     - host: "immich.j3laserna.me"
@@ -578,14 +578,7 @@ spec:
                 name: immich-server
                 port:
                   name: http
-              middleware:
-                name: large-body-buffering
-
----
-apiVersion: traefik.containo.us/v1alpha1
-kind: Middleware
-metadata:
-  name: large-body-buffering
-spec:
-  buffering:
-    maxRequestBodyBytes: 100000000 # Example: 100 MB
+  # tls:
+  #   - hosts:
+  #       - "photos.lan.stamx.nl"
+  #     secretName: tls-wildcard-lan-stamx-nl

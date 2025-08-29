@@ -78,7 +78,7 @@
       "modelName": "buffalo_l",
       "minScore": 0.7,
       "maxDistance": 0.4,
-      "minFaces": 20
+      "minFaces": 10
     }
   },
   "map": {

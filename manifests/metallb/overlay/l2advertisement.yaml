@@ -23,7 +23,7 @@ spec:
     # public-lan-ips includes:
     # - 192.168.18.250/32 (public ingress-controller)
     # - 192.168.18.251/32 (temp counterstrike)
-    - public-lan-ips
+    # - public-lan-ips
 
   # Note: In L2 mode, MetalLB will:
   # 1. Watch for service type LoadBalancer

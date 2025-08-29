@@ -565,7 +565,7 @@ metadata:
   annotations:
     traefik.ingress.kubernetes.io/router.entrypoints: "websecure"
     traefik.ingress.kubernetes.io/router.tls: "true"
-    nginx.ingress.kubernetes.io/proxy-body-size: 20480m
+    traefik.ingress.kubernetes.io/proxy-body-size: "0"
 spec:
   rules:
     - host: "immich.j3laserna.me"

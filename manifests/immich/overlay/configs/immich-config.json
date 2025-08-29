@@ -21,7 +21,7 @@
     "transcode": "required",
     "tonemap": "hable",
     "accel": "nvenc",
-    "accelDecode": true
+    "accelDecode": false
   },
   "job": {
     "backgroundTask": {

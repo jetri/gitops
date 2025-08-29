@@ -375,7 +375,15 @@ spec:
             - name: nvidia-libraries
               mountPath: /usr/lib/x86_64-linux-gnu/libnvidia-ml.so.1
               subPath: libnvidia-ml.so.1
-          resources: {}
+          resources:
+            requests:
+              memory: "1Gi"
+              cpu: "2000m"
+              nvidia.com/gpu: 1
+            limits:
+              memory: "3Gi"
+              cpu: "2000m"
+              nvidia.com/gpu: 1
       volumes:
         - name: immich-config
           configMap:

@@ -12,13 +12,13 @@ spec:
     # - 192.168.18.244/32 # syncthing
   avoidBuggyIPs: true
 
----
-apiVersion: metallb.io/v1beta1
-kind: IPAddressPool
-metadata:
-  name: public-lan-ips
-spec:
-  addresses:
-    # - 192.168.18.250/32 # public ingress-controller
-    # - 192.168.18.251/32 # temp counterstrike
-  avoidBuggyIPs: true
+# ---
+# apiVersion: metallb.io/v1beta1
+# kind: IPAddressPool
+# metadata:
+#   name: public-lan-ips
+# spec:
+#   addresses:
+#     - 192.168.18.250/32 # public ingress-controller
+#     - 192.168.18.251/32 # temp counterstrike
+#   avoidBuggyIPs: true

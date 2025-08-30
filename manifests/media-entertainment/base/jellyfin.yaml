@@ -196,6 +196,13 @@ spec:
       containers:
         - name: jellyfin
           image: "docker.io/jellyfin/jellyfin:10"
+          securityContext:
+            privileged: true
+          env:
+            - name: NVIDIA_VISIBLE_DEVICES
+              value: "all"
+            - name: NVIDIA_DRIVER_CAPABILITIES
+              value: "compute,utility,video"
           ports:
             - name: http
               containerPort: 8096
@@ -221,6 +228,14 @@ spec:
               mountPath: /cache
             - name: jellyfin-hardware
               mountPath: /dev/dri
+            - name: nvidia-devices
+              mountPath: /dev/nvidia0
+            - name: nvidia-uvm
+              mountPath: /dev/nvidia-uvm
+            - name: nvidia-modeset
+              mountPath: /dev/nvidia-modeset
+            - name: nvidia-ctl
+              mountPath: /dev/nvidiactl
           resources:
             requests:
               memory: "1Gi"
@@ -245,6 +260,18 @@ spec:
         - name: jellyfin-hardware
           hostPath:
             path: /dev/dri
+        - name: nvidia-devices
+          hostPath:
+            path: /dev/nvidia0
+        - name: nvidia-uvm
+          hostPath:
+            path: /dev/nvidia-uvm
+        - name: nvidia-modeset
+          hostPath:
+            path: /dev/nvidia-modeset
+        - name: nvidia-ctl
+          hostPath:
+            path: /dev/nvidiactl
 
 ---
 kind: Service

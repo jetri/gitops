@@ -230,12 +230,12 @@ spec:
               mountPath: /config
             - name: cache
               mountPath: /cache
-            - name: nvidia-libraries
-              mountPath: /usr/lib/x86_64-linux-gnu/libcuda.so.1
-              subPath: libcuda.so.1
-            - name: nvidia-libraries
-              mountPath: /usr/lib/x86_64-linux-gnu/libnvidia-ml.so.1
-              subPath: libnvidia-ml.so.1
+            # - name: nvidia-libraries
+            #   mountPath: /usr/lib/x86_64-linux-gnu/libcuda.so.1
+            #   subPath: libcuda.so.1
+            # - name: nvidia-libraries
+            #   mountPath: /usr/lib/x86_64-linux-gnu/libnvidia-ml.so.1
+            #   subPath: libnvidia-ml.so.1
           resources:
             requests:
               memory: "1Gi"
@@ -257,10 +257,10 @@ spec:
         - name: cache
           persistentVolumeClaim:
             claimName: pvc-iscsi-jellyfin-cache
-        - name: nvidia-libraries
-          hostPath:
-            path: /usr/lib/x86_64-linux-gnu
-            type: Directory
+        # - name: nvidia-libraries
+        #   hostPath:
+        #     path: /usr/lib/x86_64-linux-gnu
+        #     type: Directory
 
 ---
 kind: Service

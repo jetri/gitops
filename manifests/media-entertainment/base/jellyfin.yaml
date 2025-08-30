@@ -196,8 +196,8 @@ spec:
       containers:
         - name: jellyfin
           image: "docker.io/jellyfin/jellyfin:10"
-          securityContext:
-            privileged: true
+          # securityContext:
+          #   privileged: true
           ports:
             - name: http
               containerPort: 8096
@@ -221,8 +221,8 @@ spec:
               mountPath: /config
             - name: cache
               mountPath: /cache
-            - name: jellyfin-hardware
-              mountPath: /dev/dri
+            # - name: jellyfin-hardware
+            #   mountPath: /dev/dri
           resources:
             requests:
               memory: "1Gi"
@@ -244,9 +244,9 @@ spec:
         - name: cache
           persistentVolumeClaim:
             claimName: pvc-iscsi-jellyfin-cache
-        - name: jellyfin-hardware
-          hostPath:
-            path: /dev/dri
+        # - name: jellyfin-hardware
+        #   hostPath:
+        #     path: /dev/dri
 
 ---
 kind: Service

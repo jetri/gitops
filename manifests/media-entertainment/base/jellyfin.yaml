@@ -189,7 +189,6 @@ spec:
       labels:
         app: jellyfin
     spec:
-      runtimeClassName: nvidia
       affinity:
         nodeAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:

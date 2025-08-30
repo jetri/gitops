@@ -188,7 +188,7 @@ spec:
     metadata:
       labels:
         app: jellyfin
-    # spec:
+    spec:
     #   affinity:
     #     nodeAffinity:
     #       requiredDuringSchedulingIgnoredDuringExecution:

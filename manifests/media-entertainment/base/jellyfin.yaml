@@ -189,6 +189,16 @@ spec:
       labels:
         app: jellyfin
     spec:
+      runtimeClassName: nvidia
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: kubernetes.io/hostname
+                operator: In
+                values:
+                - gpu-node-1
       securityContext:
         runAsUser: 1031
         runAsGroup: 100
@@ -221,8 +231,12 @@ spec:
               mountPath: /config
             - name: cache
               mountPath: /cache
-            # - name: jellyfin-hardware
-            #   mountPath: /dev/dri
+            - name: nvidia-libraries
+              mountPath: /usr/lib/x86_64-linux-gnu/libcuda.so.1
+              subPath: libcuda.so.1
+            - name: nvidia-libraries
+              mountPath: /usr/lib/x86_64-linux-gnu/libnvidia-ml.so.1
+              subPath: libnvidia-ml.so.1
           resources:
             requests:
               memory: "1Gi"
@@ -244,9 +258,10 @@ spec:
         - name: cache
           persistentVolumeClaim:
             claimName: pvc-iscsi-jellyfin-cache
-        # - name: jellyfin-hardware
-        #   hostPath:
-        #     path: /dev/dri
+        - name: nvidia-libraries
+          hostPath:
+            path: /usr/lib/x86_64-linux-gnu
+            type: Directory
 
 ---
 kind: Service

@@ -69,7 +69,7 @@ spec:
     storage: 10Gi
   accessModes:
     - ReadWriteOnce
-  persistentVolumeReclaimPolicy: Retain
+  persistentVolumeReclaimPolicy: Delete
   csi:
     driver: org.democratic-csi.node-manual
     readOnly: false

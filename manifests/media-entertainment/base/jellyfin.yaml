@@ -257,10 +257,10 @@ spec:
         - name: cache
           persistentVolumeClaim:
             claimName: pvc-iscsi-jellyfin-cache
-        # - name: nvidia-libraries
-        #   hostPath:
-        #     path: /usr/lib/x86_64-linux-gnu
-        #     type: Directory
+        - name: nvidia-libraries
+          hostPath:
+            path: /usr/lib/x86_64-linux-gnu
+            type: Directory
 
 ---
 kind: Service

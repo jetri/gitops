@@ -236,6 +236,9 @@ spec:
             - name: nvidia-libraries
               mountPath: /usr/lib/x86_64-linux-gnu/libnvidia-ml.so.1
               subPath: libnvidia-ml.so.1
+            - name: nvidia-libraries
+              mountPath: /usr/lib/jellyfin-ffmpeg
+              subPath: ffmpeg
           resources:
             requests:
               memory: "1Gi"
@@ -260,6 +263,10 @@ spec:
         - name: nvidia-libraries
           hostPath:
             path: /usr/lib/x86_64-linux-gnu
+            type: Directory
+        - name: jellyfin-libraries
+          hostPath:
+            path: /usr/lib/jellyfin-ffmpeg
             type: Directory
 
 ---

@@ -3,7 +3,8 @@
     "allow": [
       "Bash(kubectl get:*)",
       "Bash(kubectl describe:*)",
-      "Bash(kubectl logs:*)"
+      "Bash(kubectl logs:*)",
+      "WebFetch(domain:github.com)"
     ],
     "deny": [],
     "ask": []

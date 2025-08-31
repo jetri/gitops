@@ -69,7 +69,7 @@ spec:
     storage: 10Gi
   accessModes:
     - ReadWriteOnce
-  persistentVolumeReclaimPolicy: Delete
+  persistentVolumeReclaimPolicy: Retain
   csi:
     driver: org.democratic-csi.node-manual
     readOnly: false
@@ -189,15 +189,15 @@ spec:
       labels:
         app: jellyfin
     spec:
-    #   affinity:
-    #     nodeAffinity:
-    #       requiredDuringSchedulingIgnoredDuringExecution:
-    #         nodeSelectorTerms:
-    #         - matchExpressions:
-    #           - key: kubernetes.io/hostname
-    #             operator: In
-    #             values:
-    #             - gpu-node-1
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: kubernetes.io/hostname
+                operator: In
+                values:
+                - gpu-node-1
       securityContext:
         runAsUser: 1031
         runAsGroup: 100
@@ -230,12 +230,12 @@ spec:
               mountPath: /config
             - name: cache
               mountPath: /cache
-            # - name: nvidia-libraries
-            #   mountPath: /usr/lib/x86_64-linux-gnu/libcuda.so.1
-            #   subPath: libcuda.so.1
-            # - name: nvidia-libraries
-            #   mountPath: /usr/lib/x86_64-linux-gnu/libnvidia-ml.so.1
-            #   subPath: libnvidia-ml.so.1
+            - name: nvidia-libraries
+              mountPath: /usr/lib/x86_64-linux-gnu/libcuda.so.1
+              subPath: libcuda.so.1
+            - name: nvidia-libraries
+              mountPath: /usr/lib/x86_64-linux-gnu/libnvidia-ml.so.1
+              subPath: libnvidia-ml.so.1
           resources:
             requests:
               memory: "1Gi"

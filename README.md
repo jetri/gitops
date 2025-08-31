@@ -66,6 +66,10 @@ kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.pas
   --dry-run=client -o yaml | \
   kubeseal --format yaml --controller-namespace kube-system > manifests/democratic-csi/overlay/sealedsecret.yaml
 ```
+
+## Democratic CSI Mounting Issue
+https://github.com/democratic-csi/democratic-csi/issues/85
+
 ## Start ArgoCD WebUI
 
 ```bash

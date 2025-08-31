@@ -189,6 +189,7 @@ spec:
       labels:
         app: jellyfin
     spec:
+      runtimeClassName: nvidia
       affinity:
         nodeAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:
@@ -204,9 +205,12 @@ spec:
         fsGroup: 100
       containers:
         - name: jellyfin
-          image: "docker.io/jellyfin/jellyfin:10"
-          # securityContext:
-          #   privileged: true
+          image: "docker.io/jellyfin/jellyfin:latest"
+          env:
+            - name: NVIDIA_DRIVER_CAPABILITIES
+              value: "compute,utility,video"
+            - name: NVIDIA_VISIBLE_DEVICES
+              value: "all"
           ports:
             - name: http
               containerPort: 8096
@@ -230,14 +234,8 @@ spec:
               mountPath: /config
             - name: cache
               mountPath: /cache
-            - name: nvidia-libraries
-              mountPath: /usr/lib/x86_64-linux-gnu/libcuda.so.1
-              subPath: libcuda.so.1
-            - name: nvidia-libraries
-              mountPath: /usr/lib/x86_64-linux-gnu/libnvidia-ml.so.1
-              subPath: libnvidia-ml.so.1
-            - name: jellyfin-libraries
-              mountPath: /usr/lib/jellyfin-ffmpeg
+            - name: dri
+              mountPath: /dev/dri
           resources:
             requests:
               memory: "1Gi"
@@ -259,13 +257,9 @@ spec:
         - name: cache
           persistentVolumeClaim:
             claimName: pvc-iscsi-jellyfin-cache
-        - name: nvidia-libraries
+        - name: dri
           hostPath:
-            path: /usr/lib/x86_64-linux-gnu
-            type: Directory
-        - name: jellyfin-libraries
-          hostPath:
-            path: /usr/lib/jellyfin-ffmpeg
+            path: /dev/dri
             type: Directory
 
 ---

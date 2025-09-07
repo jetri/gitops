@@ -217,6 +217,9 @@ kubeseal --format yaml
 ### Deploy Core Apps
 
 ```bash
+# need to create media namespace for cert
+# maybe create wildcard during media creating and not during core
+kubectl create namespace argocd
 k apply -f argocd/app-of-core-apps.yaml
 ```
 

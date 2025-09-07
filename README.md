@@ -43,7 +43,7 @@ kubectl create secret generic cloudflare-api-token-secret \
   --namespace cert-manager \
   --from-literal=api-token='TOKEN_HERE' \
   --dry-run=client -o yaml | \
-kubeseal --format yaml --controller-namespace kube-system > /Users/j3/Documents/homelab/gitops/manifests/cert-manager/base/cloudflare-api-token-secret.yaml
+kubeseal --format yaml --controller-namespace kube-system > /Users/j3/Documents/homelab/gitops/manifests/cloudflare/base/cloudflare-api-token-secret.yaml
 ```
 
 ## Install ArgoCD

@@ -18,7 +18,7 @@ spec:
     fsType: xfs
     volumeHandle: pv-iscsi-immich-database
     volumeAttributes:
-      portal: 192.168.18.96:3260
+      portal: truenas.j3laserna.me:3260
       iqn: iqn.2005-10.org.freenas.ctl:immich-db
       lun: "0"
       node_attach_driver: iscsi
@@ -48,7 +48,7 @@ spec:
     fsType: nfs
     volumeHandle: pv-nfs-immich-lb
     volumeAttributes:
-      server: 192.168.18.96
+      server: truenas.j3laserna.me
       share: /mnt/home-lab/containers/immich-library
       node_attach_driver: nfs
       provisioner_driver: node-manual
@@ -77,7 +77,7 @@ spec:
     fsType: nfs
     volumeHandle: pv-nfs-synology-library
     volumeAttributes:
-      server: 192.168.18.96
+      server: truenas.j3laserna.me
       share: /mnt/home-lab/synology/media
       node_attach_driver: nfs
       provisioner_driver: node-manual

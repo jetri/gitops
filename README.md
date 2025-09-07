@@ -70,6 +70,89 @@ kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.pas
 ## Democratic CSI Mounting Issue
 https://github.com/democratic-csi/democratic-csi/issues/85
 
+With persistentVolumeReclaimPolicy: Retain, here's what happens to your data:
+
+  When You Delete Pod and PV:
+
+  1. Pod Deletion: Only removes the running container, volume remains mounted
+  2. PV Deletion: Kubernetes removes the PV object but does NOT delete the underlying storage
+
+  Data Location During Deletion:
+
+  Data Remains On TrueNAS:
+  - Your iSCSI target iqn.2005-10.org.freenas.ctl:jellyfin-config stays active
+  - The backing zvol/dataset on TrueNAS is untouched
+  - All Jellyfin config files remain intact in the TrueNAS storage
+
+  When You Recreate PV and Pod:
+
+  Data Restoration Process:
+  1. New PV: Points to the same iSCSI target (iqn.2005-10.org.freenas.ctl:jellyfin-config)
+  2. Democratic-CSI: Detects existing XFS filesystem on the iSCSI volume
+  3. Mount: Mounts the existing filesystem (no formatting needed)
+  4. Data Access: Jellyfin pod sees all previous configuration data
+
+  Key Points:
+
+  - Data Source: TrueNAS iSCSI extent/zvol (never deleted)
+  - Automatic Recovery: Democratic-CSI recognizes existing filesystem
+  - No Data Loss: All Jellyfin settings, databases, metadata preserved
+
+  Example Flow:
+
+  Delete PV/Pod → Data stays on TrueNAS zvol
+  Create PV/Pod → CSI mounts existing filesystem → Jellyfin reads old config
+
+  The Retain policy ensures your Jellyfin configuration survives Kubernetes resource deletions, making it safe for
+   maintenance and upgrades.
+
+> where does the actual data stored in truenas? I go to truenas shell and go to the pool and dataset but the dataset
+   is empty or when I do ls command there is nothing there?
+
+⏺ You're looking in the wrong place! For iSCSI volumes on TrueNAS, the data isn't stored as files you can browse
+  with ls. Here's where to find it:
+
+  iSCSI Storage Types on TrueNAS:
+
+  1. Zvol (Block Device) - Most Common:
+
+  # On TrueNAS shell:
+  zfs list -t volume | grep jellyfin
+  # Shows: pool/jellyfin-config  10G  used_space  -
+
+  # Data is stored as raw blocks in the zvol, not browsable files
+  # You can't ls into a zvol - it's a block device
+
+  2. File-based Extent:
+
+  # If using file extent, look for the actual file:
+  find /mnt -name "*jellyfin*" -type f
+  # Should show: /mnt/pool/dataset/jellyfin-config.img or similar
+
+  Why You Can't See Data:
+
+  Zvol = Block Device:
+  - Acts like a raw hard drive
+  - Contains XFS filesystem inside
+  - Not browsable from TrueNAS shell
+  - Data only accessible when mounted by client (Kubernetes)
+
+  To Check Your iSCSI Configuration:
+
+  1. TrueNAS Web UI: Sharing > Block Shares (iSCSI) > Extents
+  2. Look for: jellyfin-config extent
+  3. Check Type: "Device" (zvol) or "File"
+
+  Access Data Properly:
+
+  The data is there, but stored inside the XFS filesystem within the zvol. You'd need to:
+  1. Mount the iSCSI target on a Linux machine
+  2. Mount the XFS filesystem
+  3. Then browse the Jellyfin config files
+
+  The empty dataset you're seeing is probably the parent dataset, not the actual zvol storage.
+
+
 ## Start ArgoCD WebUI
 
 ```bash
@@ -120,7 +203,7 @@ echo '
 
 kubectl create secret generic protonvpn-config \
   --namespace=media \
-  --from-file=node-nl.protonvpn.udp.ovpn=/path/to/your/vpn-config.ovpn \
+  --from-file=node-nl.protonvpn.udp.ovpn=../../../Documents/homelab/sg-19.protonvpn.udp.ovpn \
   --dry-run=client -o yaml | \
 kubeseal --format yaml
 
@@ -128,6 +211,18 @@ kubeseal --format yaml
 
 # The output will be the complete sealed secret that you can directly use in your YAML file
 '
+```
+
+## Deploy
+### Deploy Core Apps
+
+```bash
+k apply -f argocd/app-of-core-apps.yaml
+```
+
+### Deploy Media
+```bash
+
 ```
 
 ## Deleting Applications

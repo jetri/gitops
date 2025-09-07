@@ -5,8 +5,8 @@ metadata:
   name: private-lan-ips
 spec:
   addresses:
-    - 192.168.18.240/32 # private ingress-controller
-    - 192.168.18.241/32 # jellyfin
+    - 10.10.30.10/32 # private ingress-controller
+    - 10.10.30.11/32 # jellyfin
     # - 192.168.18.242/32 # tplink-omada-controller
     # - 192.168.18.243/32 # home-assistant coiot
     # - 192.168.18.244/32 # syncthing

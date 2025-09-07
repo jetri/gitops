@@ -22,7 +22,7 @@ spec:
     fsType: nfs
     volumeHandle: pv-nfs-jellyfin-media
     volumeAttributes:
-      server: 192.168.18.96
+      server: truenas.j3laserna.me
       share: /mnt/home-lab/media
       node_attach_driver: nfs
       provisioner_driver: node-manual
@@ -51,7 +51,7 @@ spec:
     fsType: nfs
     volumeHandle: pv-nfs-jellyfin-music
     volumeAttributes:
-      server: 192.168.18.96
+      server: truenas.j3laserna.me
       share: /mnt/home-lab/media/music
       node_attach_driver: nfs
       provisioner_driver: node-manual
@@ -76,7 +76,7 @@ spec:
     fsType: xfs
     volumeHandle: pv-iscsi-jellyfin-config
     volumeAttributes:
-      portal: 192.168.18.96:3260
+      portal: truenas.j3laserna.me:3260
       iqn: iqn.2005-10.org.freenas.ctl:jellyfin-config
       lun: "0"
       node_attach_driver: iscsi
@@ -102,7 +102,7 @@ spec:
     fsType: xfs
     volumeHandle: pv-iscsi-jellyfin-cache
     volumeAttributes:
-      portal: 192.168.18.96:3260
+      portal: truenas.j3laserna.me:3260
       iqn: iqn.2005-10.org.freenas.ctl:jellyfin-cache
       lun: "0"
       node_attach_driver: iscsi
@@ -271,7 +271,7 @@ metadata:
     app: jellyfin
 spec:
   type: LoadBalancer
-  loadBalancerIP: 192.168.18.241
+  loadBalancerIP: 10.10.30.11
   externalTrafficPolicy: Local
   selector:
     app: jellyfin

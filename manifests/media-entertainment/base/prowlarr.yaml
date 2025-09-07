@@ -19,7 +19,7 @@ spec:
     fsType: xfs
     volumeHandle: pv-iscsi-prowlarr-config
     volumeAttributes:
-      portal: 192.168.18.96:3260
+      portal: truenas.j3laserna.me:3260
       iqn: iqn.2005-10.org.freenas.ctl:prowlarr-config
       lun: "0"
       node_attach_driver: iscsi

@@ -11,4 +11,5 @@ resources:
   # - sonarr.yaml
   - transmission.yaml
   # - transmission-certificate.yaml
+  - wildcard-certificate.yaml
 

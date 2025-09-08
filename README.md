@@ -273,10 +273,10 @@ Delete the child applications first:
 kubectl get applications -n argocd
 
 # Delete each child application
-kubectl delete application -n argocd [child-app-name]
+kubectl delete application -n argocd media-entertainment
 
 # Delete manifests
-k delete -k manifests/[child-app-name]/overlay
+k delete -k manifests/media-entertainment/overlay
 ```
 
 2. Then delete the app-of-apps application:

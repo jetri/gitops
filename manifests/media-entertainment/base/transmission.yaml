@@ -18,7 +18,7 @@ spec:
     fsType: xfs
     volumeHandle: pv-iscsi-transmission-config
     volumeAttributes:
-      portal: truenas.j3laserna.me:3260
+      portal: 10.10.30.43:3260
       iqn: iqn.2005-10.org.freenas.ctl:transmission-config
       lun: "0"
       node_attach_driver: iscsi
@@ -48,7 +48,7 @@ spec:
     fsType: nfs
     volumeHandle: pv-nfs-downloads
     volumeAttributes:
-      server: truenas.j3laserna.me
+      server: 10.10.30.43
       share: /mnt/home-lab/containers/transmission
       node_attach_driver: nfs
       provisioner_driver: node-manual

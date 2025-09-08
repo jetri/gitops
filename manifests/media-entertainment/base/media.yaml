@@ -22,7 +22,7 @@ spec:
     fsType: nfs
     volumeHandle: pv-nfs-media
     volumeAttributes:
-      server: truenas.j3laserna.me
+      server: 10.10.30.43
       share: /mnt/home-lab/media
       node_attach_driver: nfs
       provisioner_driver: node-manual

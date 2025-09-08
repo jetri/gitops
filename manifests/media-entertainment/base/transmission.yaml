@@ -128,7 +128,7 @@ metadata:
   labels:
     app: transmission
 data:
-  LOCAL_NETWORK: 10.10.30.1/24
+  LOCAL_NETWORK: 10.10.30.0/24
   OPENVPN_OPTS: --inactive 3600 --ping 10 --ping-exit 60
   OPENVPN_PROVIDER: CUSTOM
   # OPENVPN_CONFIG: sg-19.protonvpn.udp

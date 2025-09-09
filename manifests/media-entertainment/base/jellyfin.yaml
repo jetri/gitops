@@ -92,7 +92,7 @@ metadata:
 spec:
   storageClassName: "freenas-iscsi-manual-csi"
   capacity:
-    storage: 5Gi
+    storage: 100Gi
   accessModes:
     - ReadWriteOnce
   persistentVolumeReclaimPolicy: Retain
@@ -169,7 +169,7 @@ spec:
     - ReadWriteOnce
   resources:
     requests:
-      storage: 5Gi
+      storage: 100Gi
   volumeName: pv-iscsi-jellyfin-cache
 
 ---
@@ -211,6 +211,12 @@ spec:
               value: "compute,utility,video"
             - name: NVIDIA_VISIBLE_DEVICES
               value: "all"
+            - name: JELLYFIN_NETWORKING_KNOWNPROXIES
+              value: "10.10.30.0/24,127.0.0.1"
+            - name: JELLYFIN_NETWORKING_REQUIREHTTPS
+              value: "false"
+            - name: JELLYFIN_NETWORKING_ENABLEIPV4
+              value: "true"
           ports:
             - name: http
               containerPort: 8096

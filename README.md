@@ -11,9 +11,6 @@
 
 ## Deploy NVIDIA K8s Device Plugin**
 ```bash
-#label the gpu node
-kubectl label node gpu-node-1 nvidia.com/gpu.present=true
-
 # On your admin machine (not in cluster)
 # https://github.com/NVIDIA/k8s-device-plugin
 # kubectl apply -f https://raw.githubusercontent.com/NVIDIA/k8s-device-plugin/v0.17.2/deployments/static/nvidia-device-plugin.yml
@@ -24,6 +21,9 @@ helm upgrade --install nvidia-device-plugin nvidia/nvidia-device-plugin \
   --namespace nvidia-device-plugin \
   --create-namespace \
   --set runtimeClassName=nvidia
+
+#label the gpu node after plugin installation
+kubectl label node gpu-node-1 nvidia.com/gpu.present=true
 ```
 
 ## Install Cert Manager
@@ -65,6 +65,15 @@ kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.pas
   --from-literal=mount_flags='username=,password=' \
   --dry-run=client -o yaml | \
   kubeseal --format yaml --controller-namespace kube-system > manifests/democratic-csi/overlay/sealedsecret.yaml
+```
+
+## Immich secrets
+```bash
+kubectl create secret generic immich-secret-env \          
+  --namespace tools \         
+  --from-literal=DB_PASSWORD='' \                             
+  --dry-run=client -o yaml | \
+  kubeseal --format yaml --controller-namespace kube-system > manifests/immich/overlay/sealedsecret.yaml
 ```
 
 ## Democratic CSI Mounting Issue

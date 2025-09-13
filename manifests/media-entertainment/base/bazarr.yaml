@@ -18,7 +18,7 @@ spec:
     fsType: xfs
     volumeHandle: pv-iscsi-bazarr-config
     volumeAttributes:
-      portal: truenas-master.lan.stamx.nl:3260
+      portal: 10.10.30.43:3260
       iqn: iqn.2005-10.org.freenas.ctl:bazarr-config
       lun: "0"
       node_attach_driver: iscsi
@@ -70,14 +70,20 @@ spec:
         - name: bazarr
           image: "lscr.io/linuxserver/bazarr:latest"
           imagePullPolicy: Always
-          resources: {}
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "100m"
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
           env:
             - name: PUID
               value: "1000"
             - name: PGID
               value: "2000"
             - name: "TZ"
-              value: "Europe/Amsterdam"
+              value: "Asia/Singapore"
           ports:
             - name: http
               containerPort: 6767
@@ -143,9 +149,8 @@ metadata:
   labels:
     app: bazarr
 spec:
-  ingressClassName: nginx-private
   rules:
-    - host: bazarr.lan.stamx.nl
+    - host: bazarr.j3laserna.me
       http:
         paths:
           - path: "/"
@@ -157,5 +162,5 @@ spec:
                   number: 6767
   tls:
     - hosts:
-        - bazarr.lan.stamx.nl
-      secretName: tls-wildcard-lan-stamx-nl
+        - bazarr.j3laserna.me
+      secretName: wildcard-j3laserna-me-tls

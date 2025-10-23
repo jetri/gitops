@@ -11,4 +11,4 @@ spec:
   commonName: "*.j3laserna.me"
   dnsNames:
     - "*.j3laserna.me"
-    - "j3laserna.me"  # Include apex domain
+    - "j3laserna.me"

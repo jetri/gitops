@@ -274,7 +274,6 @@ spec:
       labels:
         app: immich-server
     spec:
-      runtimeClassName: nvidia
       affinity:
         nodeAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:
@@ -330,10 +329,6 @@ spec:
                 secretKeyRef:
                   name: immich-secret-env
                   key: DB_PASSWORD
-            - name: NVIDIA_DRIVER_CAPABILITIES
-              value: "compute,utility,video"
-            - name: NVIDIA_VISIBLE_DEVICES
-              value: "all"
           envFrom:
             - configMapRef:
                 name: immich-env
@@ -369,12 +364,6 @@ spec:
               mountPath: /usr/src/app/upload
             - name: synology
               mountPath: /synology/media
-            - name: nvidia-libraries
-              mountPath: /usr/lib/x86_64-linux-gnu/libcuda.so.1
-              subPath: libcuda.so.1
-            - name: nvidia-libraries
-              mountPath: /usr/lib/x86_64-linux-gnu/libnvidia-ml.so.1
-              subPath: libnvidia-ml.so.1
           resources:
             requests:
               memory: "1Gi"
@@ -382,7 +371,6 @@ spec:
             limits:
               memory: "3Gi"
               cpu: "2000m"
-              nvidia.com/gpu: 1
       volumes:
         - name: immich-config
           configMap:
@@ -393,10 +381,6 @@ spec:
         - name: synology
           persistentVolumeClaim:
             claimName: pvc-nfs-synology-library
-        - name: nvidia-libraries
-          hostPath:
-            path: /usr/lib/x86_64-linux-gnu
-            type: Directory
 
 ---
 kind: Deployment

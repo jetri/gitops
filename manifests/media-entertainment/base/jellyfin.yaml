@@ -189,7 +189,6 @@ spec:
       labels:
         app: jellyfin
     spec:
-      runtimeClassName: nvidia
       affinity:
         nodeAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:
@@ -207,10 +206,6 @@ spec:
         - name: jellyfin
           image: "docker.io/jellyfin/jellyfin:latest"
           env:
-            - name: NVIDIA_DRIVER_CAPABILITIES
-              value: "compute,utility,video"
-            - name: NVIDIA_VISIBLE_DEVICES
-              value: "all"
             - name: JELLYFIN_NETWORKING_KNOWNPROXIES
               value: "10.10.30.0/24,127.0.0.1"
             - name: JELLYFIN_NETWORKING_REQUIREHTTPS

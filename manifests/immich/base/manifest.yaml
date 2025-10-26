@@ -379,7 +379,6 @@ spec:
             requests:
               memory: "1Gi"
               cpu: "2000m"
-              nvidia.com/gpu: 1
             limits:
               memory: "3Gi"
               cpu: "2000m"

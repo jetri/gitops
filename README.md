@@ -38,7 +38,7 @@ kubectl apply -f https://github.com/bitnami-labs/sealed-secrets/releases/downloa
 
 ## Create Secret for Cloudflare TLS
 ```bash
-#sample
+#sample: run this in one go. YOu don't have to apply, it will be applied later when you deploy
 kubectl create secret generic cloudflare-api-token-secret \
   --namespace cert-manager \
   --from-literal=api-token='TOKEN_HERE' \
@@ -60,6 +60,7 @@ kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.pas
 
 ## Set democratic-csi secrets
 ```bash
+# leave username and password empty
 ❯ kubectl create secret generic smbcredentials-coen \
   --namespace democratic-csi \
   --from-literal=mount_flags='username=,password=' \
@@ -69,9 +70,9 @@ kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.pas
 
 ## Immich secrets
 ```bash
-kubectl create secret generic immich-secret-env \          
-  --namespace tools \         
-  --from-literal=DB_PASSWORD='' \                             
+kubectl create secret generic immich-secret-env \
+  --namespace tools \
+  --from-literal=DB_PASSWORD='' \
   --dry-run=client -o yaml | \
   kubeseal --format yaml --controller-namespace kube-system > manifests/immich/overlay/sealedsecret.yaml
 ```
@@ -189,7 +190,8 @@ sudo chown 1000:2000 completed watch
 ```
 
 ```bash
-# Create the secret with your ProtonVPN credentials
+# Create the secret with your ProtonVPN credentials (https://account.protonvpn.com/account-password)
+# then update the transition.yaml file
 kubectl create secret generic transmission-vpn-cred \
   --namespace=media \
   --from-literal=OPENVPN_USERNAME='' \

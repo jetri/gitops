@@ -70,6 +70,7 @@ kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.pas
 
 ## Immich secrets
 ```bash
+# copy the secret and update the immich manifest.yaml file
 kubectl create secret generic immich-secret-env \
   --namespace tools \
   --from-literal=DB_PASSWORD='' \
@@ -236,7 +237,7 @@ k apply -f argocd/app-of-core-apps.yaml
 
 ### Deploy Media
 ```bash
-
+k apply -f argocd/app-of-apps.yaml
 ```
 
 ## Deleting Applications

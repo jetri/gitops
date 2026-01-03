@@ -189,15 +189,15 @@ spec:
       labels:
         app: jellyfin
     spec:
-      affinity:
-        nodeAffinity:
-          requiredDuringSchedulingIgnoredDuringExecution:
-            nodeSelectorTerms:
-            - matchExpressions:
-              - key: kubernetes.io/hostname
-                operator: In
-                values:
-                - gpu-node-1
+      # affinity:
+      #   nodeAffinity:
+      #     requiredDuringSchedulingIgnoredDuringExecution:
+      #       nodeSelectorTerms:
+      #       - matchExpressions:
+      #         - key: kubernetes.io/hostname
+      #           operator: In
+      #           values:
+      #           - gpu-node-1
       securityContext:
         runAsUser: 1031
         runAsGroup: 100

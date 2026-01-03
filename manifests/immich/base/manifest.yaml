@@ -189,15 +189,15 @@ spec:
       labels:
         app: immich-database
     spec:
-      affinity:
-        nodeAffinity:
-          requiredDuringSchedulingIgnoredDuringExecution:
-            nodeSelectorTerms:
-            - matchExpressions:
-              - key: kubernetes.io/hostname
-                operator: In
-                values:
-                - gpu-node-1
+      # affinity:
+      #   nodeAffinity:
+      #     requiredDuringSchedulingIgnoredDuringExecution:
+      #       nodeSelectorTerms:
+      #       - matchExpressions:
+      #         - key: kubernetes.io/hostname
+      #           operator: In
+      #           values:
+      #           - gpu-node-1
       # initContainers:
       #   - name: check-data-dir
       #     image: busybox
@@ -275,14 +275,14 @@ spec:
         app: immich-server
     spec:
       affinity:
-        nodeAffinity:
-          requiredDuringSchedulingIgnoredDuringExecution:
-            nodeSelectorTerms:
-            - matchExpressions:
-              - key: kubernetes.io/hostname
-                operator: In
-                values:
-                - gpu-node-1
+        # nodeAffinity:
+        #   requiredDuringSchedulingIgnoredDuringExecution:
+        #     nodeSelectorTerms:
+        #     - matchExpressions:
+        #       - key: kubernetes.io/hostname
+        #         operator: In
+        #         values:
+        #         - gpu-node-1
         podAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:
             - labelSelector:

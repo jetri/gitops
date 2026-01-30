@@ -18,7 +18,7 @@ spec:
     fsType: ext4
     volumeHandle: pv-iscsi-sonarr-config
     volumeAttributes:
-      portal: truenas-master.lan.stamx.nl:3260
+      portal: 10.10.30.43:3260
       iqn: iqn.2005-10.org.freenas.ctl:sonarr-config
       lun: "0"
       node_attach_driver: iscsi
@@ -70,14 +70,20 @@ spec:
         - name: sonarr
           image: "lscr.io/linuxserver/sonarr:latest"
           imagePullPolicy: Always
-          resources: {}
+          resources:
+            limits:
+              cpu: "2000m"
+              memory: "2Gi"
+            requests:
+              cpu: "100m"
+              memory: "512Mi"
           env:
             - name: PUID
               value: "1000"
             - name: PGID
               value: "2000"
             - name: "TZ"
-              value: "Europe/Amsterdam"
+              value: "Asia/Singapore"
           ports:
             - name: http
               containerPort: 8989
@@ -155,9 +161,8 @@ metadata:
   labels:
     app: sonarr
 spec:
-  ingressClassName: nginx-private
   rules:
-    - host: sonarr.lan.stamx.nl
+    - host: sonarr.j3laserna.me
       http:
         paths:
           - path: "/"
@@ -169,6 +174,6 @@ spec:
                   number: 8989
   tls:
     - hosts:
-        - sonarr.lan.stamx.nl
-      secretName: tls-wildcard-lan-stamx-nl
+        - sonarr.j3laserna.me
+      secretName: wildcard-j3laserna-me-tls
 

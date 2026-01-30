@@ -8,7 +8,7 @@ resources:
   - media.yaml
   - prowlarr.yaml
   - radarr.yaml
-  # - sonarr.yaml
+  - sonarr.yaml
   - transmission.yaml
   # - transmission-certificate.yaml
 

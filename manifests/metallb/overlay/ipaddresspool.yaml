@@ -7,6 +7,7 @@ spec:
   addresses:
     - 10.10.30.10/32 # private ingress-controller
     - 10.10.30.11/32 # jellyfin
+    - 10.10.30.12/32 # JupyterHub
     # - 192.168.18.242/32 # tplink-omada-controller
     # - 192.168.18.243/32 # home-assistant coiot
     # - 192.168.18.244/32 # syncthing

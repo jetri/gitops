@@ -180,6 +180,13 @@ spec:
               
               # Set permissions
               chmod 644 /config/openvpn/custom/*
+
+              # Proton .ovpn files often call update-resolv-conf, which needs systemd D-Bus.
+              # Strip those hooks; haugene's route-up (tunnelUp.sh) updates /etc/resolv.conf instead.
+              for f in /config/openvpn/custom/*.ovpn; do
+                [ -f "$f" ] || continue
+                sed -i -e '/update-resolv-conf/d' -e '/update-systemd-resolved/d' "$f"
+              done
               
               # Debug output
               echo "Files in /config/openvpn/custom/:"
@@ -201,6 +208,10 @@ spec:
               # Copy from the writable config location to the custom dir
               cp /config/openvpn/custom/* /etc/openvpn/custom/
               chmod 644 /etc/openvpn/custom/*
+              for f in /etc/openvpn/custom/*.ovpn; do
+                [ -f "$f" ] || continue
+                sed -i -e '/update-resolv-conf/d' -e '/update-systemd-resolved/d' "$f"
+              done
               echo "Files in /etc/openvpn/custom/:"
               ls -la /etc/openvpn/custom/
           volumeMounts:
@@ -210,8 +221,9 @@ spec:
               name: custom-config-dir
       containers:
         - name: transmission
-          image: "docker.io/haugene/transmission-openvpn:latest"
-          imagePullPolicy: Always
+          # Pinned: 5.4.x moved to Ubuntu 24.04; update-resolv-conf can fail without systemd in the pod.
+          image: "docker.io/haugene/transmission-openvpn:5.3.2"
+          imagePullPolicy: IfNotPresent
           env:
             - name: OPENVPN_PROVIDER
               value: "CUSTOM"

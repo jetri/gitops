@@ -160,7 +160,8 @@ metadata:
   labels:
     app: hermes
 spec:
-  type: NodePort
+  type: LoadBalancer
+  loadBalancerIP: 10.10.30.13
   selector:
     app: hermes
   ports:
@@ -172,3 +173,30 @@ spec:
       protocol: TCP
       port: 9119
       targetPort: dashboard
+
+---
+kind: Ingress
+apiVersion: networking.k8s.io/v1
+metadata:
+  name: hermes
+  labels:
+    app: hermes
+  annotations:
+    traefik.ingress.kubernetes.io/router.entrypoints: "websecure"
+    traefik.ingress.kubernetes.io/router.tls: "true"
+spec:
+  tls:
+  - hosts:
+    - hermes.j3laserna.me
+    secretName: wildcard-j3laserna-me-tls
+  rules:
+    - host: hermes.j3laserna.me
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: hermes-svc
+                port:
+                  name: dashboard

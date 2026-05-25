@@ -41,6 +41,23 @@ spec:
   volumeName: pv-iscsi-hermes-vllm-cache
 
 ---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: vllm-config
+  labels:
+    app: vllm
+data:
+  config.yaml: |
+    served_model_name: qwen-7b
+    quantization: awq_marlin
+    max_model_len: 65536
+    rope_scaling:
+      type: yarn
+      factor: 2.0
+      original_max_position_embeddings: 32768
+
+---
 kind: Deployment
 apiVersion: apps/v1
 metadata:
@@ -66,16 +83,10 @@ spec:
         - name: vllm
           image: "vllm/vllm-openai:latest"
           args:
-            - "--model"
+            - "serve"
             - "Qwen/Qwen2.5-7B-Instruct-AWQ"
-            - "--served-model-name"
-            - "qwen-7b"
-            - "--quantization"
-            - "awq_marlin"
-            - "--max-model-len"
-            - "65536"
-            - "--rope-scaling"
-            - '{"type":"yarn","factor":2.0,"original_max_position_embeddings":32768}'
+            - "--config"
+            - "/etc/vllm/config.yaml"
             - "--host"
             - "0.0.0.0"
             - "--port"
@@ -87,6 +98,8 @@ spec:
           volumeMounts:
             - name: model-cache
               mountPath: /root/.cache/huggingface
+            - name: vllm-config
+              mountPath: /etc/vllm
           resources:
             requests:
               memory: "8Gi"
@@ -116,6 +129,9 @@ spec:
         - name: model-cache
           persistentVolumeClaim:
             claimName: pvc-iscsi-hermes-vllm-cache
+        - name: vllm-config
+          configMap:
+            name: vllm-config
 
 ---
 kind: Service

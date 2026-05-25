@@ -1,0 +1,128 @@
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: pv-iscsi-hermes-vllm-cache
+  labels:
+    app: vllm
+spec:
+  storageClassName: "freenas-iscsi-manual-csi"
+  capacity:
+    storage: 50Gi
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  csi:
+    driver: org.democratic-csi.node-manual
+    readOnly: false
+    fsType: xfs
+    volumeHandle: pv-iscsi-hermes-vllm-cache
+    volumeAttributes:
+      portal: 10.10.30.43:3260
+      iqn: iqn.2005-10.org.freenas.ctl:hermes-vllm-cache
+      lun: "0"
+      node_attach_driver: iscsi
+      provisioner_driver: node-manual
+
+---
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: pvc-iscsi-hermes-vllm-cache
+  labels:
+    app: vllm
+spec:
+  storageClassName: freenas-iscsi-manual-csi
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 50Gi
+  volumeName: pv-iscsi-hermes-vllm-cache
+
+---
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: vllm
+  labels:
+    app: vllm
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: vllm
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: vllm
+    spec:
+      nodeSelector:
+        nvidia.com/gpu: "true"
+      containers:
+        - name: vllm
+          image: "vllm/vllm-openai:latest"
+          args:
+            - "--model"
+            - "Qwen/Qwen2.5-7B-Instruct"
+            - "--served-model-name"
+            - "qwen-7b"
+            - "--host"
+            - "0.0.0.0"
+            - "--port"
+            - "8000"
+          ports:
+            - name: http
+              containerPort: 8000
+              protocol: TCP
+          volumeMounts:
+            - name: model-cache
+              mountPath: /root/.cache/huggingface
+          resources:
+            requests:
+              memory: "8Gi"
+              cpu: "2000m"
+            limits:
+              memory: "16Gi"
+              cpu: "4000m"
+              nvidia.com/gpu: "1"
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            initialDelaySeconds: 120
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 30
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            initialDelaySeconds: 180
+            periodSeconds: 30
+            timeoutSeconds: 5
+            failureThreshold: 5
+      restartPolicy: Always
+      volumes:
+        - name: model-cache
+          persistentVolumeClaim:
+            claimName: pvc-iscsi-hermes-vllm-cache
+
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: vllm-svc
+  labels:
+    app: vllm
+spec:
+  type: ClusterIP
+  selector:
+    app: vllm
+  ports:
+    - name: http
+      protocol: TCP
+      port: 8000
+      targetPort: http

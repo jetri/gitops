@@ -49,6 +49,7 @@ metadata:
     app: vllm
 data:
   config.yaml: |
+    model: Qwen/Qwen2.5-7B-Instruct-AWQ
     served_model_name: qwen-7b
     quantization: awq_marlin
     max_model_len: 65536
@@ -84,8 +85,6 @@ spec:
         - name: vllm
           image: "vllm/vllm-openai:latest"
           args:
-            - "serve"
-            - "Qwen/Qwen2.5-7B-Instruct-AWQ"
             - "--config"
             - "/etc/vllm/config.yaml"
             - "--host"

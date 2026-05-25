@@ -98,6 +98,8 @@ spec:
               value: "0.0.0.0"
             - name: HERMES_DASHBOARD_PORT
               value: "9119"
+            - name: HERMES_DASHBOARD_TUI
+              value: "1"
             - name: API_SERVER_ENABLED
               value: "true"
             - name: API_SERVER_HOST

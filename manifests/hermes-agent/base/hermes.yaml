@@ -54,7 +54,7 @@ data:
       model: qwen-7b
       base_url: http://vllm-svc:8000/v1
       api_key: "none"
-      context_length: 32768
+      context_length: 65536
 
 ---
 apiVersion: v1

@@ -53,7 +53,7 @@ data:
       provider: custom
       model: qwen-7b
       base_url: http://vllm-svc:8000/v1
-      api_key: "none"
+      api_key: "sk-no-key-required"
       context_length: 65536
 
 ---

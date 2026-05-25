@@ -59,6 +59,7 @@ spec:
       labels:
         app: vllm
     spec:
+      runtimeClassName: nvidia
       nodeSelector:
         nvidia.com/gpu: "true"
       containers:

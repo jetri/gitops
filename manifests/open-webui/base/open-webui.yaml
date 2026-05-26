@@ -79,12 +79,9 @@ spec:
             - name: ENABLE_OLLAMA_API
               value: "false"
             - name: OPENAI_API_BASE_URLS
-              value: "http://hermes-svc.hermes.svc.cluster.local:8642/v1"
+              value: "http://vllm-svc.hermes.svc.cluster.local:8000/v1"
             - name: OPENAI_API_KEYS
-              valueFrom:
-                secretKeyRef:
-                  name: hermes-api-key
-                  key: api-key
+              value: "sk-no-key-required"
             - name: WEBUI_AUTH
               value: "true"
             - name: WEBUI_NAME

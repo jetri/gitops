@@ -1,0 +1,170 @@
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: pv-iscsi-open-webui-data
+  labels:
+    app: open-webui
+spec:
+  storageClassName: "freenas-iscsi-manual-csi"
+  capacity:
+    storage: 10Gi
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  csi:
+    driver: org.democratic-csi.node-manual
+    readOnly: false
+    fsType: xfs
+    volumeHandle: pv-iscsi-open-webui-data
+    volumeAttributes:
+      portal: 10.10.30.43:3260
+      iqn: iqn.2005-10.org.freenas.ctl:open-webui-data
+      lun: "0"
+      node_attach_driver: iscsi
+      provisioner_driver: node-manual
+
+---
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: pvc-iscsi-open-webui-data
+  labels:
+    app: open-webui
+spec:
+  storageClassName: freenas-iscsi-manual-csi
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi
+  volumeName: pv-iscsi-open-webui-data
+
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: hermes-api-key
+  labels:
+    app: open-webui
+type: Opaque
+stringData:
+  api-key: "47f20c2492770a25526e6a59475a7fbcda331326115c3ef7e6ad680c6715188f"
+
+---
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: open-webui
+  labels:
+    app: open-webui
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: open-webui
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: open-webui
+    spec:
+      containers:
+        - name: open-webui
+          image: "ghcr.io/open-webui/open-webui:main"
+          env:
+            - name: OLLAMA_BASE_URL
+              value: ""
+            - name: ENABLE_OLLAMA_API
+              value: "false"
+            - name: OPENAI_API_BASE_URLS
+              value: "http://hermes-svc.hermes.svc.cluster.local:8642/v1"
+            - name: OPENAI_API_KEYS
+              valueFrom:
+                secretKeyRef:
+                  name: hermes-api-key
+                  key: api-key
+            - name: WEBUI_AUTH
+              value: "true"
+            - name: WEBUI_NAME
+              value: "Hermes AI"
+          ports:
+            - name: http
+              containerPort: 8080
+              protocol: TCP
+          volumeMounts:
+            - name: data
+              mountPath: /app/backend/data
+          resources:
+            requests:
+              memory: "512Mi"
+              cpu: "250m"
+            limits:
+              memory: "2Gi"
+              cpu: "1000m"
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8080
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 10
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8080
+            initialDelaySeconds: 60
+            periodSeconds: 30
+            timeoutSeconds: 5
+            failureThreshold: 5
+      restartPolicy: Always
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: pvc-iscsi-open-webui-data
+
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: open-webui-svc
+  labels:
+    app: open-webui
+spec:
+  type: ClusterIP
+  selector:
+    app: open-webui
+  ports:
+    - name: http
+      protocol: TCP
+      port: 8080
+      targetPort: http
+
+---
+kind: Ingress
+apiVersion: networking.k8s.io/v1
+metadata:
+  name: open-webui
+  labels:
+    app: open-webui
+  annotations:
+    traefik.ingress.kubernetes.io/router.entrypoints: "websecure"
+    traefik.ingress.kubernetes.io/router.tls: "true"
+spec:
+  tls:
+  - hosts:
+    - chat.j3laserna.me
+    secretName: wildcard-j3laserna-me-tls
+  rules:
+    - host: chat.j3laserna.me
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: open-webui-svc
+                port:
+                  name: http

@@ -1,0 +1,90 @@
+services:
+  vllm:
+    image: vllm/vllm-openai:latest
+    container_name: vllm
+    restart: unless-stopped
+    runtime: nvidia
+    ipc: host
+    ports:
+      - "8000:8000"
+    volumes:
+      - huggingface-cache:/root/.cache/huggingface
+      - ./vllm-config.yaml:/etc/vllm/config.yaml:ro
+    command:
+      - "--config"
+      - "/etc/vllm/config.yaml"
+      - "--host"
+      - "0.0.0.0"
+      - "--port"
+      - "8000"
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 300s
+    networks:
+      - deeptutor-network
+
+  embeddings:
+    image: ghcr.io/huggingface/text-embeddings-inference:cpu-latest
+    container_name: embeddings
+    restart: unless-stopped
+    ports:
+      - "8090:80"
+    volumes:
+      - embeddings-cache:/data
+    command:
+      - "--model-id"
+      - "BAAI/bge-m3"
+      - "--max-client-batch-size"
+      - "32"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:80/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 120s
+    networks:
+      - deeptutor-network
+
+  deeptutor:
+    image: ghcr.io/hkuds/deeptutor:latest
+    pull_policy: always
+    container_name: deeptutor
+    restart: unless-stopped
+    ports:
+      - "3782:3782"
+      - "8001:8001"
+    volumes:
+      - ./data/user:/app/data/user
+      - ./data/memory:/app/data/memory
+      - ./data/knowledge_bases:/app/data/knowledge_bases
+    depends_on:
+      vllm:
+        condition: service_healthy
+      embeddings:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8001/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    networks:
+      - deeptutor-network
+
+volumes:
+  huggingface-cache:
+  embeddings-cache:
+
+networks:
+  deeptutor-network:
+    driver: bridge

@@ -87,6 +87,67 @@ spec:
               EOF
 
               sed -i "s|__NEXT_PUBLIC_API_BASE_EXTERNAL__|${NEXT_PUBLIC_API_BASE_EXTERNAL}|g" /app/data/user/settings/system.json
+
+              # Work around upstream UI bug where an empty catalog hides
+              # "Add profile" for first-time users.
+              if [ ! -f /app/data/user/settings/model_catalog.json ] || ! grep -q '"id":' /app/data/user/settings/model_catalog.json; then
+                cat > /app/data/user/settings/model_catalog.json <<'EOF'
+              {
+                "version": 1,
+                "services": {
+                  "llm": {
+                    "active_profile_id": "llm-default-profile",
+                    "active_model_id": "llm-default-model",
+                    "profiles": [
+                      {
+                        "id": "llm-default-profile",
+                        "name": "Default OpenAI LLM",
+                        "binding": "openai",
+                        "base_url": "https://api.openai.com/v1",
+                        "api_key": "",
+                        "api_version": "",
+                        "extra_headers": {},
+                        "models": [
+                          {
+                            "id": "llm-default-model",
+                            "name": "gpt-4o-mini",
+                            "model": "gpt-4o-mini"
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  "embedding": {
+                    "active_profile_id": "embedding-default-profile",
+                    "active_model_id": "embedding-default-model",
+                    "profiles": [
+                      {
+                        "id": "embedding-default-profile",
+                        "name": "Default Local Embeddings",
+                        "binding": "openai",
+                        "base_url": "http://embeddings-svc:80/v1",
+                        "api_key": "sk-no-key-required",
+                        "api_version": "",
+                        "extra_headers": {},
+                        "models": [
+                          {
+                            "id": "embedding-default-model",
+                            "name": "BAAI/bge-m3",
+                            "model": "BAAI/bge-m3",
+                            "dimension": "1024"
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  "search": {
+                    "active_profile_id": null,
+                    "profiles": []
+                  }
+                }
+              }
+              EOF
+              fi
           env:
             - name: NEXT_PUBLIC_API_BASE_EXTERNAL
               value: "https://tutor.j3laserna.me"

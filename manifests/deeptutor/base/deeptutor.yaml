@@ -141,8 +141,19 @@ spec:
                     ]
                   },
                   "search": {
-                    "active_profile_id": null,
-                    "profiles": []
+                    "active_profile_id": "search-default-profile",
+                    "profiles": [
+                      {
+                        "id": "search-default-profile",
+                        "name": "Default Web Search",
+                        "provider": "brave",
+                        "base_url": "",
+                        "api_key": "",
+                        "api_version": "",
+                        "proxy": "",
+                        "models": []
+                      }
+                    ]
                   }
                 }
               }

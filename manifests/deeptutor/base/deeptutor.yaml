@@ -89,7 +89,7 @@ spec:
               sed -i "s|__NEXT_PUBLIC_API_BASE_EXTERNAL__|${NEXT_PUBLIC_API_BASE_EXTERNAL}|g" /app/data/user/settings/system.json
           env:
             - name: NEXT_PUBLIC_API_BASE_EXTERNAL
-              value: "https://tutor-api.j3laserna.me"
+              value: "https://tutor.j3laserna.me/api"
           volumeMounts:
             - name: data
               mountPath: /app/data/user
@@ -104,9 +104,9 @@ spec:
               value: "3782"
             # Browser runs outside the cluster; point it at the public API ingress.
             - name: NEXT_PUBLIC_API_BASE_EXTERNAL
-              value: "https://tutor-api.j3laserna.me"
+              value: "https://tutor.j3laserna.me/api"
             - name: NEXT_PUBLIC_API_BASE
-              value: "https://tutor-api.j3laserna.me"
+              value: "https://tutor.j3laserna.me/api"
             - name: LLM_BINDING
               value: "openai"
             - name: LLM_MODEL
@@ -215,6 +215,13 @@ spec:
     - host: tutor.j3laserna.me
       http:
         paths:
+          - path: /api
+            pathType: Prefix
+            backend:
+              service:
+                name: deeptutor-svc
+                port:
+                  name: backend
           - path: /
             pathType: Prefix
             backend:
@@ -222,30 +229,3 @@ spec:
                 name: deeptutor-svc
                 port:
                   name: frontend
-
----
-kind: Ingress
-apiVersion: networking.k8s.io/v1
-metadata:
-  name: deeptutor-api
-  labels:
-    app: deeptutor
-  annotations:
-    traefik.ingress.kubernetes.io/router.entrypoints: "websecure"
-    traefik.ingress.kubernetes.io/router.tls: "true"
-spec:
-  tls:
-    - hosts:
-        - tutor-api.j3laserna.me
-      secretName: wildcard-j3laserna-me-tls
-  rules:
-    - host: tutor-api.j3laserna.me
-      http:
-        paths:
-          - path: /
-            pathType: Prefix
-            backend:
-              service:
-                name: deeptutor-svc
-                port:
-                  name: backend

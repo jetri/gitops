@@ -179,6 +179,12 @@ spec:
               value: "https://tutor.j3laserna.me"
             - name: NEXT_PUBLIC_API_BASE
               value: "https://tutor.j3laserna.me"
+            - name: AUTH_ENABLED
+              value: "true"
+            - name: NEXT_PUBLIC_AUTH_ENABLED
+              value: "true"
+            - name: AUTH_COOKIE_SECURE
+              value: "true"
             - name: LLM_BINDING
               value: "openai"
             - name: LLM_MODEL

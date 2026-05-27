@@ -1,0 +1,78 @@
+---
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: embeddings
+  labels:
+    app: embeddings
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: embeddings
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: embeddings
+    spec:
+      containers:
+        - name: tei
+          image: ghcr.io/huggingface/text-embeddings-inference:cpu-1.8
+          args:
+            - "--model-id"
+            - "BAAI/bge-m3"
+            - "--max-client-batch-size"
+            - "32"
+          ports:
+            - name: http
+              containerPort: 80
+              protocol: TCP
+          volumeMounts:
+            - name: model-cache
+              mountPath: /data
+          resources:
+            requests:
+              memory: "2Gi"
+              cpu: "1000m"
+            limits:
+              memory: "4Gi"
+              cpu: "2000m"
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 80
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 10
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 80
+            initialDelaySeconds: 60
+            periodSeconds: 30
+            timeoutSeconds: 5
+            failureThreshold: 5
+      restartPolicy: Always
+      volumes:
+        - name: model-cache
+          emptyDir: {}
+
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: embeddings-svc
+  labels:
+    app: embeddings
+spec:
+  type: ClusterIP
+  selector:
+    app: embeddings
+  ports:
+    - name: http
+      protocol: TCP
+      port: 80
+      targetPort: http

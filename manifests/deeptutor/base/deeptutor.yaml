@@ -1,0 +1,214 @@
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: pv-iscsi-deeptutor-data
+  labels:
+    app: deeptutor
+spec:
+  storageClassName: "freenas-iscsi-manual-csi"
+  capacity:
+    storage: 20Gi
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  csi:
+    driver: org.democratic-csi.node-manual
+    readOnly: false
+    fsType: xfs
+    volumeHandle: pv-iscsi-deeptutor-data
+    volumeAttributes:
+      portal: 10.10.30.43:3260
+      iqn: iqn.2005-10.org.freenas.ctl:deeptutor-data
+      lun: "0"
+      node_attach_driver: iscsi
+      provisioner_driver: node-manual
+
+---
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: pvc-iscsi-deeptutor-data
+  labels:
+    app: deeptutor
+spec:
+  storageClassName: freenas-iscsi-manual-csi
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 20Gi
+  volumeName: pv-iscsi-deeptutor-data
+
+---
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: deeptutor
+  labels:
+    app: deeptutor
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: deeptutor
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: deeptutor
+    spec:
+      containers:
+        - name: deeptutor
+          image: "ghcr.io/hkuds/deeptutor:latest"
+          env:
+            - name: BACKEND_PORT
+              value: "8001"
+            - name: FRONTEND_PORT
+              value: "3782"
+            # Browser runs outside the cluster; point it at the public API ingress.
+            - name: NEXT_PUBLIC_API_BASE_EXTERNAL
+              value: "https://tutor-api.j3laserna.me"
+            - name: LLM_BINDING
+              value: "openai"
+            - name: LLM_MODEL
+              value: "gpt-4o-mini"
+            - name: LLM_HOST
+              value: "https://api.openai.com/v1"
+            - name: LLM_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: openai-api-key-secret
+                  key: api-token
+            # Embeddings: local CPU TEI (BGE-M3). Curriculum stays on-network, no OpenAI cost.
+            - name: EMBEDDING_BINDING
+              value: "openai"
+            - name: EMBEDDING_MODEL
+              value: "BAAI/bge-m3"
+            - name: EMBEDDING_HOST
+              value: "http://embeddings-svc:80/v1"
+            - name: EMBEDDING_API_KEY
+              value: "sk-no-key-required"
+            - name: EMBEDDING_DIMENSION
+              value: "1024"
+          ports:
+            - name: frontend
+              containerPort: 3782
+              protocol: TCP
+            - name: backend
+              containerPort: 8001
+              protocol: TCP
+          volumeMounts:
+            - name: data
+              mountPath: /app/data/user
+              subPath: user
+            - name: data
+              mountPath: /app/data/memory
+              subPath: memory
+            - name: data
+              mountPath: /app/data/knowledge_bases
+              subPath: knowledge_bases
+          resources:
+            requests:
+              memory: "1Gi"
+              cpu: "500m"
+            limits:
+              memory: "4Gi"
+              cpu: "2000m"
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 8001
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 10
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 8001
+            initialDelaySeconds: 60
+            periodSeconds: 30
+            timeoutSeconds: 5
+            failureThreshold: 5
+      restartPolicy: Always
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: pvc-iscsi-deeptutor-data
+
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: deeptutor-svc
+  labels:
+    app: deeptutor
+spec:
+  type: ClusterIP
+  selector:
+    app: deeptutor
+  ports:
+    - name: frontend
+      protocol: TCP
+      port: 3782
+      targetPort: frontend
+    - name: backend
+      protocol: TCP
+      port: 8001
+      targetPort: backend
+
+---
+kind: Ingress
+apiVersion: networking.k8s.io/v1
+metadata:
+  name: deeptutor
+  labels:
+    app: deeptutor
+  annotations:
+    traefik.ingress.kubernetes.io/router.entrypoints: "websecure"
+    traefik.ingress.kubernetes.io/router.tls: "true"
+spec:
+  tls:
+    - hosts:
+        - tutor.j3laserna.me
+      secretName: wildcard-j3laserna-me-tls
+  rules:
+    - host: tutor.j3laserna.me
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: deeptutor-svc
+                port:
+                  name: frontend
+
+---
+kind: Ingress
+apiVersion: networking.k8s.io/v1
+metadata:
+  name: deeptutor-api
+  labels:
+    app: deeptutor
+  annotations:
+    traefik.ingress.kubernetes.io/router.entrypoints: "websecure"
+    traefik.ingress.kubernetes.io/router.tls: "true"
+spec:
+  tls:
+    - hosts:
+        - tutor-api.j3laserna.me
+      secretName: wildcard-j3laserna-me-tls
+  rules:
+    - host: tutor-api.j3laserna.me
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: deeptutor-svc
+                port:
+                  name: backend

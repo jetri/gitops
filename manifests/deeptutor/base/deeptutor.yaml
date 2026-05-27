@@ -94,7 +94,7 @@ spec:
               {
                 "version": 1,
                 "enabled": true,
-                "username": "admin",
+                "username": "",
                 "password_hash": "",
                 "token_expire_hours": 24,
                 "cookie_secure": true

@@ -88,6 +88,19 @@ spec:
 
               sed -i "s|__NEXT_PUBLIC_API_BASE_EXTERNAL__|${NEXT_PUBLIC_API_BASE_EXTERNAL}|g" /app/data/user/settings/system.json
 
+              # Auth is read from auth.json during backend import; keep it aligned
+              # with deployment intent for multi-user mode.
+              cat > /app/data/user/settings/auth.json <<'EOF'
+              {
+                "version": 1,
+                "enabled": true,
+                "username": "admin",
+                "password_hash": "",
+                "token_expire_hours": 24,
+                "cookie_secure": true
+              }
+              EOF
+
               # Work around upstream UI bug where an empty catalog hides
               # "Add profile" for first-time users.
               if [ ! -f /app/data/user/settings/model_catalog.json ] || ! grep -q '"id":' /app/data/user/settings/model_catalog.json; then

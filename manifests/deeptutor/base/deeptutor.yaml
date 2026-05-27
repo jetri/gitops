@@ -173,45 +173,6 @@ spec:
               EOF
               fi
 
-              # Ensure search profile exists even if catalog was created before
-              # this bootstrap logic was added.
-              python - <<'PY'
-import json
-from pathlib import Path
-
-path = Path("/app/data/user/settings/model_catalog.json")
-if not path.exists():
-    raise SystemExit(0)
-
-try:
-    catalog = json.loads(path.read_text(encoding="utf-8"))
-except Exception:
-    raise SystemExit(0)
-
-services = catalog.setdefault("services", {})
-search = services.setdefault("search", {})
-profiles = search.setdefault("profiles", [])
-
-if not profiles:
-    search.update(
-        {
-            "active_profile_id": "search-default-profile",
-            "profiles": [
-                {
-                    "id": "search-default-profile",
-                    "name": "Default Web Search",
-                    "provider": "brave",
-                    "base_url": "",
-                    "api_key": "",
-                    "api_version": "",
-                    "proxy": "",
-                    "models": [],
-                }
-            ],
-        }
-    )
-    path.write_text(json.dumps(catalog, indent=2), encoding="utf-8")
-PY
           env:
             - name: NEXT_PUBLIC_API_BASE_EXTERNAL
               value: "https://tutor.j3laserna.me"

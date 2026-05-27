@@ -181,7 +181,8 @@ spec:
               subPath: user
       containers:
         - name: deeptutor
-          image: "ghcr.io/hkuds/deeptutor:latest"
+          image: "docker.io/jetri/deeptutor:auth-ui-v1"
+          imagePullPolicy: IfNotPresent
           env:
             - name: BACKEND_PORT
               value: "8001"

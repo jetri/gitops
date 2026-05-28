@@ -44,8 +44,9 @@ docker build \
   "${DEEPTUTOR_SRC}"
 
 echo "Verifying production image..."
-docker run --rm "docker.io/${IMAGE}" test -f /app/web/server.js
-docker run --rm "docker.io/${IMAGE}" grep -q 'start-frontend.sh' /etc/supervisor/conf.d/deeptutor.conf
+# Override entrypoint — the image ENTRYPOINT always starts supervisord.
+docker run --rm --entrypoint test "docker.io/${IMAGE}" -f /app/web/server.js
+docker run --rm --entrypoint grep "docker.io/${IMAGE}" -q start-frontend.sh /etc/supervisor/conf.d/deeptutor.conf
 
 if [[ "${PUSH}" == true ]]; then
   echo "Pushing docker.io/${IMAGE}"

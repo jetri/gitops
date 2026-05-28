@@ -43,7 +43,23 @@ ArgoCD uses `docker.io/jetri/deeptutor:homelab` in `deeptutor.yaml`. No source-f
 
 1. Sync the `deeptutor` ArgoCD app (image must exist on Docker Hub).
 2. Open https://tutor.j3laserna.me — default settings are created on first start.
-3. **Settings → Network**: public API base `https://tutor.j3laserna.me` (no `/api` suffix).
+3. **Settings → Network**: public API base `https://tutor.j3laserna.me` (no `/api` suffix, **no `:8001`**).
+
+   If API calls go to `http://tutor.j3laserna.me:8001/...`, `system.json` still has an empty public API base. The UI swaps `localhost` → your hostname but keeps port `8001`, which Traefik does not expose. Fix on the PVC, then restart the pod:
+
+   ```bash
+   kubectl exec -n deeptutor deploy/deeptutor -- python -c "
+   import json
+   from pathlib import Path
+   p = Path('/app/data/user/settings/system.json')
+   d = json.loads(p.read_text())
+   d['next_public_api_base_external'] = 'https://tutor.j3laserna.me'
+   d['next_public_api_base'] = 'https://tutor.j3laserna.me'
+   d['cors_origins'] = ['https://tutor.j3laserna.me']
+   p.write_text(json.dumps(d, indent=2) + '\n')
+   "
+   kubectl rollout restart deployment/deeptutor -n deeptutor
+   ```
 4. **Settings → Models**:
    - **LLM**: OpenAI, `https://api.openai.com/v1`, `gpt-4o-mini`, your API key.
    - **Embeddings**: OpenAI-compatible, `http://embeddings-svc/v1`, `BAAI/bge-m3`, dimension `1024`, API key `sk-no-key-required`.

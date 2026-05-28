@@ -10,6 +10,8 @@ spec:
   selector:
     matchLabels:
       app: whisper
+  strategy:
+    type: Recreate
   template:
     metadata:
       labels:
@@ -24,11 +26,34 @@ spec:
             - "--language"
             - "en"
           ports:
-            - containerPort: 10300
+            - name: wyoming
+              containerPort: 10300
+              protocol: TCP
           volumeMounts:
             - name: whisper-data
               mountPath: /data
-          resources: {}
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "200m"
+            limits:
+              memory: "1Gi"
+              cpu: "1000m"
+          readinessProbe:
+            tcpSocket:
+              port: wyoming
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 6
+          livenessProbe:
+            tcpSocket:
+              port: wyoming
+            initialDelaySeconds: 30
+            periodSeconds: 30
+            timeoutSeconds: 5
+            failureThreshold: 5
+      restartPolicy: Always
       volumes:
         - name: whisper-data
           emptyDir: {}
@@ -37,14 +62,15 @@ spec:
 kind: Service
 apiVersion: v1
 metadata:
-  name: whisper
+  name: whisper-svc
   labels:
     app: whisper
 spec:
+  type: ClusterIP
   selector:
     app: whisper
-  type: ClusterIP
   ports:
-    - protocol: TCP
+    - name: wyoming
+      protocol: TCP
       port: 10300
-      targetPort: 10300
+      targetPort: wyoming

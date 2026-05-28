@@ -79,13 +79,30 @@ spec:
             - name: ENABLE_OLLAMA_API
               value: "false"
             - name: OPENAI_API_BASE_URLS
-              value: "http://vllm-svc.hermes.svc.cluster.local:8000/v1"
+              value: "http://hermes-svc.hermes.svc.cluster.local:8642/v1"
             - name: OPENAI_API_KEYS
-              value: "sk-no-key-required"
+              valueFrom:
+                secretKeyRef:
+                  name: hermes-api-key
+                  key: api-key
+            - name: AUDIO_STT_ENGINE
+              value: ""
+            - name: WHISPER_MODEL
+              value: "base"
+            - name: WHISPER_COMPUTE_TYPE
+              value: "int8"
+            - name: WHISPER_LANGUAGE
+              value: "en"
+            - name: AUDIO_TTS_ENGINE
+              value: "openai"
+            - name: AUDIO_TTS_MODEL
+              value: "gpt-4o-mini-tts"
+            - name: AUDIO_TTS_VOICE
+              value: "alloy"
             - name: WEBUI_AUTH
               value: "true"
             - name: WEBUI_NAME
-              value: "Hermes AI"
+              value: "Tutor AI"
           ports:
             - name: http
               containerPort: 8080

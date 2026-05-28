@@ -79,7 +79,7 @@ spec:
             - name: ENABLE_OLLAMA_API
               value: "false"
             - name: OPENAI_API_BASE_URLS
-              value: "http://hermes-svc.hermes.svc.cluster.local:8642/v1"
+              value: "https://api.openai.com/v1"
             - name: OPENAI_API_KEYS
               valueFrom:
                 secretKeyRef:
@@ -102,7 +102,7 @@ spec:
             - name: WEBUI_AUTH
               value: "true"
             - name: WEBUI_NAME
-              value: "Tutor AI"
+              value: "Tutor AI (Direct OpenAI)"
           ports:
             - name: http
               containerPort: 8080

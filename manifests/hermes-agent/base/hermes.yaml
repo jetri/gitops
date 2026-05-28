@@ -53,6 +53,8 @@ data:
       provider: custom
       model: gpt-4o
       base_url: https://api.openai.com/v1
+    agent:
+      reasoning_effort: none
 
 ---
 apiVersion: v1

@@ -63,7 +63,8 @@ spec:
         - name: deeptutor
           # Built from DeepTutor source (see gitops/deeptutor/build-image.sh).
           image: "docker.io/jetri/deeptutor:homelab"
-          imagePullPolicy: IfNotPresent
+          # Always pull: nodes may cache an older :homelab layer from the dev-stage build.
+          imagePullPolicy: Always
           ports:
             - name: frontend
               containerPort: 3782

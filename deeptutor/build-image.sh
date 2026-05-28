@@ -44,9 +44,19 @@ docker build \
   "${DEEPTUTOR_SRC}"
 
 echo "Verifying production image..."
+IMG="docker.io/${IMAGE}"
 # Override entrypoint — the image ENTRYPOINT always starts supervisord.
-docker run --rm --entrypoint test "docker.io/${IMAGE}" -f /app/web/server.js
-docker run --rm --entrypoint grep "docker.io/${IMAGE}" -q start-frontend.sh /etc/supervisor/conf.d/deeptutor.conf
+docker run --rm --entrypoint test "${IMG}" -f /app/web/server.js
+docker run --rm --entrypoint grep "${IMG}" -q start-frontend.sh /etc/supervisor/conf.d/deeptutor.conf
+if docker run --rm --entrypoint grep "${IMG}" -q 'next dev' /etc/supervisor/conf.d/deeptutor.conf; then
+  echo "ERROR: Image is the Dockerfile 'development' stage (next dev). Rebuild with --target production." >&2
+  exit 1
+fi
+if docker run --rm --entrypoint grep "${IMG}" -q '\--reload' /etc/supervisor/conf.d/deeptutor.conf; then
+  echo "ERROR: Image supervisord still uses uvicorn --reload (development stage)." >&2
+  exit 1
+fi
+echo "OK: production supervisord + standalone server.js"
 
 if [[ "${PUSH}" == true ]]; then
   echo "Pushing docker.io/${IMAGE}"

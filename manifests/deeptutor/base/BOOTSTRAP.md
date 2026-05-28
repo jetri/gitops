@@ -27,7 +27,15 @@ cd homelab/gitops/deeptutor
 ./build-image.sh homelab --push   # after docker login
 ```
 
-`build-image.sh` passes `--target production` (required: the Dockerfile’s default final stage is `development`, which runs `next dev` without `web/app/` and crashes).
+`build-image.sh` passes `--target production` (required: the Dockerfile’s default final stage is `development`, which runs `next dev` without `web/app/` and crashes). After pushing, restart the pod; the manifest uses `imagePullPolicy: Always` so nodes do not keep a cached dev image tagged `:homelab`.
+
+**Wrong image on cluster?** Pod logs show `Turbopack` or `WatchFiles` reloader → still the dev image. Rebuild, push, then `kubectl rollout restart deployment/deeptutor -n deeptutor`. Confirm with:
+
+```bash
+kubectl exec -n deeptutor deploy/deeptutor -- grep -E 'start-frontend|next dev' /etc/supervisor/conf.d/deeptutor.conf
+```
+
+You want `start-frontend.sh`, not `next dev`.
 
 ArgoCD uses `docker.io/jetri/deeptutor:homelab` in `deeptutor.yaml`. No source-file edits are required before build.
 

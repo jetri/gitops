@@ -51,7 +51,7 @@ data:
   config.yaml: |
     model:
       provider: custom
-      model: gpt-4o-mini
+      model: gpt-4o
       base_url: https://api.openai.com/v1
 
 ---
@@ -73,7 +73,7 @@ metadata:
   labels:
     app: hermes
 spec:
-  replicas: 0
+  replicas: 1
   selector:
     matchLabels:
       app: hermes

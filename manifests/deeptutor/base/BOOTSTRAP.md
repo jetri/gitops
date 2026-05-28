@@ -27,6 +27,8 @@ cd homelab/gitops/deeptutor
 ./build-image.sh homelab --push   # after docker login
 ```
 
+`build-image.sh` passes `--target production` (required: the Dockerfile’s default final stage is `development`, which runs `next dev` without `web/app/` and crashes).
+
 ArgoCD uses `docker.io/jetri/deeptutor:homelab` in `deeptutor.yaml`. No source-file edits are required before build.
 
 ## First boot

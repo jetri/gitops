@@ -33,12 +33,19 @@ if [[ -z "${DEEPTUTOR_SRC}" || ! -f "${DEEPTUTOR_SRC}/Dockerfile" ]]; then
   exit 1
 fi
 
-echo "Building ${IMAGE} from ${DEEPTUTOR_SRC} (${PLATFORM})"
+# The Dockerfile's last stage is "development" (next dev). Without --target,
+# Docker builds that stage and the container fails: no web/app in the image.
+echo "Building ${IMAGE} from ${DEEPTUTOR_SRC} (${PLATFORM}, target=production)"
 docker build \
   --platform "${PLATFORM}" \
+  --target production \
   -t "docker.io/${IMAGE}" \
   -f "${DEEPTUTOR_SRC}/Dockerfile" \
   "${DEEPTUTOR_SRC}"
+
+echo "Verifying production image..."
+docker run --rm "docker.io/${IMAGE}" test -f /app/web/server.js
+docker run --rm "docker.io/${IMAGE}" grep -q 'start-frontend.sh' /etc/supervisor/conf.d/deeptutor.conf
 
 if [[ "${PUSH}" == true ]]; then
   echo "Pushing docker.io/${IMAGE}"

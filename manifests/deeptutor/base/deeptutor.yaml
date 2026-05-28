@@ -59,169 +59,11 @@ spec:
       labels:
         app: deeptutor
     spec:
-      initContainers:
-        - name: seed-settings
-          image: busybox:1.36
-          command:
-            - sh
-            - -lc
-            - |
-              set -eu
-              mkdir -p /app/data/user/settings
-
-              # DeepTutor persists settings in system.json and may prefer it over env vars.
-              # Keep it in sync with our K8s-provided external API base so the browser hits
-              # the public API ingress rather than `${UI_HOST}:8001`.
-              cat > /app/data/user/settings/system.json <<'EOF'
-              {
-                "version": 1,
-                "backend_port": 8001,
-                "frontend_port": 3782,
-                "next_public_api_base_external": "__NEXT_PUBLIC_API_BASE_EXTERNAL__",
-                "next_public_api_base": "__NEXT_PUBLIC_API_BASE_EXTERNAL__",
-                "cors_origin": "",
-                "cors_origins": [],
-                "disable_ssl_verify": false,
-                "chat_attachment_dir": ""
-              }
-              EOF
-
-              sed -i "s|__NEXT_PUBLIC_API_BASE_EXTERNAL__|${NEXT_PUBLIC_API_BASE_EXTERNAL}|g" /app/data/user/settings/system.json
-
-              # Auth is read from auth.json during backend import; keep it aligned
-              # with deployment intent for multi-user mode.
-              cat > /app/data/user/settings/auth.json <<'EOF'
-              {
-                "version": 1,
-                "enabled": true,
-                "username": "",
-                "password_hash": "",
-                "token_expire_hours": 24,
-                "cookie_secure": true
-              }
-              EOF
-
-              # Work around upstream UI bug where an empty catalog hides
-              # "Add profile" for first-time users.
-              if [ ! -f /app/data/user/settings/model_catalog.json ] || ! grep -q '"id":' /app/data/user/settings/model_catalog.json; then
-                cat > /app/data/user/settings/model_catalog.json <<'EOF'
-              {
-                "version": 1,
-                "services": {
-                  "llm": {
-                    "active_profile_id": "llm-default-profile",
-                    "active_model_id": "llm-default-model",
-                    "profiles": [
-                      {
-                        "id": "llm-default-profile",
-                        "name": "Default OpenAI LLM",
-                        "binding": "openai",
-                        "base_url": "https://api.openai.com/v1",
-                        "api_key": "",
-                        "api_version": "",
-                        "extra_headers": {},
-                        "models": [
-                          {
-                            "id": "llm-default-model",
-                            "name": "gpt-4o-mini",
-                            "model": "gpt-4o-mini"
-                          }
-                        ]
-                      }
-                    ]
-                  },
-                  "embedding": {
-                    "active_profile_id": "embedding-default-profile",
-                    "active_model_id": "embedding-default-model",
-                    "profiles": [
-                      {
-                        "id": "embedding-default-profile",
-                        "name": "Default Local Embeddings",
-                        "binding": "openai",
-                        "base_url": "http://embeddings-svc:80/v1",
-                        "api_key": "sk-no-key-required",
-                        "api_version": "",
-                        "extra_headers": {},
-                        "models": [
-                          {
-                            "id": "embedding-default-model",
-                            "name": "BAAI/bge-m3",
-                            "model": "BAAI/bge-m3",
-                            "dimension": "1024"
-                          }
-                        ]
-                      }
-                    ]
-                  },
-                  "search": {
-                    "active_profile_id": "search-default-profile",
-                    "profiles": [
-                      {
-                        "id": "search-default-profile",
-                        "name": "Default Web Search",
-                        "provider": "brave",
-                        "base_url": "",
-                        "api_key": "",
-                        "api_version": "",
-                        "proxy": "",
-                        "models": []
-                      }
-                    ]
-                  }
-                }
-              }
-              EOF
-              fi
-
-          env:
-            - name: NEXT_PUBLIC_API_BASE_EXTERNAL
-              value: "https://tutor.j3laserna.me"
-          volumeMounts:
-            - name: data
-              mountPath: /app/data/user
-              subPath: user
       containers:
         - name: deeptutor
-          image: "docker.io/jetri/deeptutor:auth-ui-v1"
+          # Built from DeepTutor source (see gitops/deeptutor/build-image.sh).
+          image: "docker.io/jetri/deeptutor:homelab"
           imagePullPolicy: IfNotPresent
-          env:
-            - name: BACKEND_PORT
-              value: "8001"
-            - name: FRONTEND_PORT
-              value: "3782"
-            # Browser runs outside the cluster; point it at the public API ingress.
-            - name: NEXT_PUBLIC_API_BASE_EXTERNAL
-              value: "https://tutor.j3laserna.me"
-            - name: NEXT_PUBLIC_API_BASE
-              value: "https://tutor.j3laserna.me"
-            - name: AUTH_ENABLED
-              value: "true"
-            - name: NEXT_PUBLIC_AUTH_ENABLED
-              value: "true"
-            - name: AUTH_COOKIE_SECURE
-              value: "true"
-            - name: LLM_BINDING
-              value: "openai"
-            - name: LLM_MODEL
-              value: "gpt-4o-mini"
-            - name: LLM_HOST
-              value: "https://api.openai.com/v1"
-            - name: LLM_API_KEY
-              valueFrom:
-                secretKeyRef:
-                  name: openai-api-key-secret
-                  key: api-token
-            # Embeddings: local CPU TEI (BGE-M3). Curriculum stays on-network, no OpenAI cost.
-            - name: EMBEDDING_BINDING
-              value: "openai"
-            - name: EMBEDDING_MODEL
-              value: "BAAI/bge-m3"
-            - name: EMBEDDING_HOST
-              value: "http://embeddings-svc:80/v1"
-            - name: EMBEDDING_API_KEY
-              value: "sk-no-key-required"
-            - name: EMBEDDING_DIMENSION
-              value: "1024"
           ports:
             - name: frontend
               containerPort: 3782
@@ -230,6 +72,7 @@ spec:
               containerPort: 8001
               protocol: TCP
           volumeMounts:
+            # Same layout as docker-compose.ghcr.yml + multi-user for shared auth.
             - name: data
               mountPath: /app/data/user
               subPath: user
@@ -239,6 +82,9 @@ spec:
             - name: data
               mountPath: /app/data/knowledge_bases
               subPath: knowledge_bases
+            - name: data
+              mountPath: /app/multi-user
+              subPath: multi-user
           resources:
             requests:
               memory: "1Gi"

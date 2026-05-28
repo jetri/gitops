@@ -1,30 +1,14 @@
-# DeepTutor Custom Image (Auth UI Enabled)
+# Deprecated
 
-Builds a DeepTutor image with the prebuilt frontend patched so auth UI controls
-(Logout/Admin links) work, then pushes to Docker Hub.
+The patch-based image build in this directory is **deprecated**. It modified the upstream GHCR image to flip baked-in `AUTH_ENABLED=false` in compiled JS.
 
-## Why this exists
-
-The upstream `ghcr.io/hkuds/deeptutor:latest` image ships a compiled Next.js
-frontend where `AUTH_ENABLED` is baked as `false`. Backend auth may work, but
-sidebar auth/admin controls stay hidden.
-
-## Build and push
+Build from the official [DeepTutor Dockerfile](https://github.com/HKUDS/DeepTutor/blob/main/Dockerfile) instead:
 
 ```bash
-cd deeptutor/custom-image
-docker login
-./build.sh auth-ui-v1
+cd ../deeptutor
+./build-image.sh homelab --push
 ```
 
-Publishes: `docker.io/jetri/deeptutor:auth-ui-v1`
+The upstream image already replaces `__NEXT_PUBLIC_AUTH_ENABLED_PLACEHOLDER__` at container start from `data/user/settings/auth.json` (see `start-frontend.sh` in the DeepTutor repo). Enable auth in Settings or `auth.json`; no bundle patching required.
 
-Repository: https://hub.docker.com/repositories/jetri
-
-## Kubernetes
-
-`manifests/deeptutor/base/deeptutor.yaml` uses:
-
-`docker.io/jetri/deeptutor:auth-ui-v1`
-
-After push, sync ArgoCD so the cluster pulls the new image.
+Kubernetes bootstrap: `manifests/deeptutor/base/BOOTSTRAP.md`.

@@ -41,17 +41,6 @@ spec:
   volumeName: pv-iscsi-open-webui-data
 
 ---
-apiVersion: v1
-kind: Secret
-metadata:
-  name: hermes-api-key
-  labels:
-    app: open-webui
-type: Opaque
-stringData:
-  api-key: "47f20c2492770a25526e6a59475a7fbcda331326115c3ef7e6ad680c6715188f"
-
----
 kind: Deployment
 apiVersion: apps/v1
 metadata:
@@ -83,8 +72,8 @@ spec:
             - name: OPENAI_API_KEYS
               valueFrom:
                 secretKeyRef:
-                  name: hermes-api-key
-                  key: api-key
+                  name: openai-api-key-secret
+                  key: api-token
             - name: AUDIO_STT_ENGINE
               value: ""
             - name: WHISPER_MODEL

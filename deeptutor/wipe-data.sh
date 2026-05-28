@@ -89,6 +89,8 @@ kubectl scale deployment "${DEPLOYMENT}" -n "${NAMESPACE}" --replicas=1
 
 echo ""
 echo "Clean slate complete. Next:"
-echo "  1. Wait for pod ready: kubectl get pods -n ${NAMESPACE} -w"
-echo "  2. Open https://tutor.j3laserna.me and follow manifests/deeptutor/base/BOOTSTRAP.md"
-echo "  3. Clear browser cookies for tutor.j3laserna.me (old dt_token)"
+echo "  1. ./bootstrap-homelab.sh   # writes system.json (official settings API)"
+echo "  2. kubectl rollout restart deployment/${DEPLOYMENT} -n ${NAMESPACE}"
+echo "  3. Register at PUBLIC_URL/register after restart — see BOOTSTRAP.md"
+echo "  4. Configure Models in Settings UI"
+echo "  4. Clear browser cookies for tutor.j3laserna.me (old dt_token)"

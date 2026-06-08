@@ -48,7 +48,7 @@ metadata:
   labels:
     app: deeptutor
 spec:
-  replicas: 0
+  replicas: 1
   selector:
     matchLabels:
       app: deeptutor
@@ -59,12 +59,56 @@ spec:
       labels:
         app: deeptutor
     spec:
+      # Seed system.json on first boot when the PVC is empty. Behind ingress the
+      # browser cannot reach localhost:8001, so network settings must exist
+      # before the Settings UI can save. Uses upstream settings APIs only.
+      initContainers:
+        - name: seed-network-settings
+          image: ghcr.io/hkuds/deeptutor:1.4.2
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: DEEPTUTOR_SEED_PUBLIC_URL
+              value: "https://tutor.j3laserna.me"
+          command:
+            - python
+            - -c
+            - |
+              import os
+              from pathlib import Path
+
+              from deeptutor.services.setup import init_user_directories
+              from deeptutor.services.config import get_runtime_settings_service
+              from deeptutor.services.config.runtime_settings import ensure_runtime_settings_files
+
+              public = os.environ["DEEPTUTOR_SEED_PUBLIC_URL"].rstrip("/")
+              init_user_directories(Path("/app"))
+              runtime = get_runtime_settings_service()
+              system = runtime.load_system(include_process_overrides=False)
+              if not (
+                  system.get("next_public_api_base_external")
+                  or system.get("next_public_api_base")
+              ):
+                  runtime.save_system(
+                      {
+                          "backend_port": 8001,
+                          "frontend_port": 3782,
+                          "next_public_api_base_external": public,
+                          "next_public_api_base": public,
+                          "cors_origins": [public],
+                      }
+                  )
+                  print(f"Seeded network settings for {public}")
+              else:
+                  print("Network settings already configured, skipping")
+              ensure_runtime_settings_files()
+          volumeMounts:
+            - name: data
+              mountPath: /app/data/user
+              subPath: user
       containers:
         - name: deeptutor
-          # Built from DeepTutor source (see gitops/deeptutor/build-image.sh).
-          image: "docker.io/jetri/deeptutor:homelab"
-          # Always pull: nodes may cache an older :homelab layer from the dev-stage build.
-          imagePullPolicy: Always
+          image: ghcr.io/hkuds/deeptutor:1.4.2
+          imagePullPolicy: IfNotPresent
           ports:
             - name: frontend
               containerPort: 3782
@@ -73,7 +117,7 @@ spec:
               containerPort: 8001
               protocol: TCP
           volumeMounts:
-            # Same layout as docker-compose.ghcr.yml + multi-user for shared auth.
+            # Same layout as docker-compose.ghcr.yml; multi-user mount persists auth workspaces.
             - name: data
               mountPath: /app/data/user
               subPath: user
@@ -93,14 +137,21 @@ spec:
             limits:
               memory: "4Gi"
               cpu: "2000m"
+          startupProbe:
+            httpGet:
+              path: /
+              port: 8001
+            initialDelaySeconds: 15
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 30
           readinessProbe:
             httpGet:
               path: /
               port: 8001
-            initialDelaySeconds: 30
             periodSeconds: 10
             timeoutSeconds: 5
-            failureThreshold: 10
+            failureThreshold: 3
           livenessProbe:
             httpGet:
               path: /

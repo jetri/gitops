@@ -2,6 +2,8 @@
 
 Self-hosted AI tutor running on a gaming PC with an NVIDIA 5090 (32GB VRAM).
 
+**Kubernetes (cluster):** `manifests/deeptutor/` deploys `ghcr.io/hkuds/deeptutor:1.4.2` with TEI embeddings. See `manifests/deeptutor/README.md`. PVC wipe: `./wipe-data.sh`.
+
 ## Prerequisites
 
 - NVIDIA GPU with 32GB+ VRAM (RTX 5090)

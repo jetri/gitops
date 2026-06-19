@@ -107,7 +107,7 @@ spec:
               subPath: user
       containers:
         - name: deeptutor
-          image: ghcr.io/hkuds/deeptutor:1.4.2
+          image: ghcr.io/hkuds/deeptutor:1.4.8
           imagePullPolicy: IfNotPresent
           ports:
             - name: frontend

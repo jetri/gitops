@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Wipe all DeepTutor data on the TrueNAS-backed PVC (clean slate).
-# Keeps PV/PVC/LUN; deletes user settings, KBs, memory, and multi-user state.
+# Keeps PV/PVC/LUN; deletes user settings, KBs, memory, accounts, and workspaces.
 #
 # Usage:
 #   ./wipe-data.sh              # interactive confirm
@@ -25,7 +25,9 @@ if [[ "${SKIP_CONFIRM}" != true ]]; then
   echo "  - user/ (settings, chat, workspace)"
   echo "  - memory/"
   echo "  - knowledge_bases/"
-  echo "  - multi-user/"
+  echo "  - system/ (accounts, grants, JWT secret)"
+  echo "  - users/ (per-user workspaces)"
+  echo "  - multi-user/ (legacy layout)"
   echo ""
   echo "The TrueNAS iSCSI volume is kept; only filesystem contents are removed."
   read -r -p "Type WIPE to continue: " confirm
@@ -64,7 +66,7 @@ spec:
             - |
               set -eu
               mount=/data
-              for dir in user memory knowledge_bases multi-user; do
+              for dir in user memory knowledge_bases system users multi-user; do
                 if [ -d "\${mount}/\${dir}" ]; then
                   echo "Removing \${mount}/\${dir}/*"
                   rm -rf "\${mount}/\${dir}"/*

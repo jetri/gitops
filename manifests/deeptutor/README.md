@@ -1,8 +1,8 @@
 # DeepTutor (Kubernetes)
 
-Official image: [`ghcr.io/hkuds/deeptutor:1.4.2`](https://github.com/HKUDS/DeepTutor) (pinned; same Dockerfile as `docker-compose.ghcr.yml`).
+Official image: [`ghcr.io/hkuds/deeptutor:1.4.10`](https://github.com/HKUDS/DeepTutor) (pinned).
 
-v1.4.2 includes the multi-user workspace routing fix ([#485](https://github.com/HKUDS/DeepTutor/issues/485)) — use this tag or newer for multi-user.
+v1.4.3+ stores multi-user state under `data/system` (accounts, grants, JWT secret) and `data/users` (per-user workspaces). Use v1.4.3 or newer for multi-user.
 
 ## Architecture
 
@@ -16,7 +16,7 @@ Browser API base in `system.json`: `https://tutor.j3laserna.me` (no `:8001`, no 
 ## What the manifest provides (OOTB)
 
 - Official GHCR image, no custom build
-- PVC mounts: `user`, `memory`, `knowledge_bases`, **`multi-user`** (required for multi-user persistence; upstream GHCR compose omits this)
+- PVC mount: full `/app/data` tree (settings, KBs, memory, **`system`**, **`users`**, partners)
 - Ingress path split matching upstream’s Caddy example
 - `replicas: 1` + `Recreate` (single-process; required for first-admin registration)
 - Init container: seeds `system.json` network settings on **empty PVC only** (idempotent)
@@ -57,6 +57,8 @@ Then:
 4. Confirm sidebar shows **Logout** / **Admin** (frontend reads `auth.json` at container start).
 
 `cookie_secure: true` is required for HTTPS. Keep `integrations.pocketbase_url` blank (PocketBase is single-user only).
+
+After upgrading from a manifest that omitted `data/system`, register once more at `/register`; user accounts are then persisted across pod restarts.
 
 ## Change public URL
 

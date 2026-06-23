@@ -64,7 +64,7 @@ spec:
       # before the Settings UI can save. Uses upstream settings APIs only.
       initContainers:
         - name: seed-network-settings
-          image: ghcr.io/hkuds/deeptutor:1.4.2
+          image: ghcr.io/hkuds/deeptutor:1.4.10
           imagePullPolicy: IfNotPresent
           env:
             - name: DEEPTUTOR_SEED_PUBLIC_URL
@@ -103,11 +103,10 @@ spec:
               ensure_runtime_settings_files()
           volumeMounts:
             - name: data
-              mountPath: /app/data/user
-              subPath: user
+              mountPath: /app/data
       containers:
         - name: deeptutor
-          image: ghcr.io/hkuds/deeptutor:1.4.8
+          image: ghcr.io/hkuds/deeptutor:1.4.10
           imagePullPolicy: IfNotPresent
           ports:
             - name: frontend
@@ -117,19 +116,10 @@ spec:
               containerPort: 8001
               protocol: TCP
           volumeMounts:
-            # Same layout as docker-compose.ghcr.yml; multi-user mount persists auth workspaces.
+            # Full data tree (matches upstream compose.yaml). v1.4.3+ stores
+            # accounts/grants/JWT secret in data/system; per-user workspaces in data/users.
             - name: data
-              mountPath: /app/data/user
-              subPath: user
-            - name: data
-              mountPath: /app/data/memory
-              subPath: memory
-            - name: data
-              mountPath: /app/data/knowledge_bases
-              subPath: knowledge_bases
-            - name: data
-              mountPath: /app/multi-user
-              subPath: multi-user
+              mountPath: /app/data
           resources:
             requests:
               memory: "1Gi"

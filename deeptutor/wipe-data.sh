@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
-# Wipe all DeepTutor data on the TrueNAS-backed PVC (clean slate).
-# Keeps PV/PVC/LUN; deletes user settings, KBs, memory, accounts, and workspaces.
+# Wipe the entire DeepTutor PVC (clean slate). Keeps PV/PVC/LUN.
 #
 # Usage:
 #   ./wipe-data.sh              # interactive confirm
@@ -21,15 +20,8 @@ if [[ "${1:-}" == "--yes" ]]; then
 fi
 
 if [[ "${SKIP_CONFIRM}" != true ]]; then
-  echo "This will DELETE all DeepTutor data on ${PVC} in namespace ${NAMESPACE}:"
-  echo "  - user/ (settings, chat, workspace)"
-  echo "  - memory/"
-  echo "  - knowledge_bases/"
-  echo "  - system/ (accounts, grants, JWT secret)"
-  echo "  - users/ (per-user workspaces)"
-  echo "  - multi-user/ (legacy layout)"
-  echo ""
-  echo "The TrueNAS iSCSI volume is kept; only filesystem contents are removed."
+  echo "This will DELETE ALL files on ${PVC} in namespace ${NAMESPACE}."
+  echo "The TrueNAS iSCSI volume is kept; the filesystem is emptied."
   read -r -p "Type WIPE to continue: " confirm
   if [[ "${confirm}" != "WIPE" ]]; then
     echo "Cancelled."
@@ -66,12 +58,8 @@ spec:
             - |
               set -eu
               mount=/data
-              for dir in user memory knowledge_bases system users multi-user; do
-                if [ -d "\${mount}/\${dir}" ]; then
-                  echo "Removing \${mount}/\${dir}/*"
-                  rm -rf "\${mount}/\${dir}"/*
-                fi
-              done
+              echo "Removing everything under \${mount}"
+              find "\${mount}" -mindepth 1 -maxdepth 1 -exec rm -rf {} +
               echo "Done."
           volumeMounts:
             - name: data
@@ -91,10 +79,11 @@ kubectl scale deployment "${DEPLOYMENT}" -n "${NAMESPACE}" --replicas=1
 
 echo ""
 echo "Clean slate complete. Next:"
-echo "  1. Open https://tutor.j3laserna.me → Settings → Network (API base + CORS)"
-echo "  2. kubectl rollout restart deployment/${DEPLOYMENT} -n ${NAMESPACE}"
-echo "  3. Settings → Models (embeddings: http://embeddings-svc/v1, BAAI/bge-m3)"
-echo "  4. Multi-user: see manifests/deeptutor/README.md (auth.json + restart + /register)"
-echo "  5. Clear browser cookies for tutor.j3laserna.me (old dt_token)"
+echo "  1. Wait for the pod (backend + frontend containers) to become Ready"
+echo "  2. Open https://tutor.j3laserna.me → Settings → Network"
+echo "     Set public API base to https://tutor.j3laserna.me and add CORS origin"
+echo "  3. kubectl rollout restart deployment/${DEPLOYMENT} -n ${NAMESPACE}"
+echo "  4. Settings → Models (embeddings: http://embeddings-svc/v1, BAAI/bge-m3)"
+echo "  5. Optional multi-user: see manifests/deeptutor/README.md"
+echo "  6. Clear browser cookies for tutor.j3laserna.me"
 echo ""
-echo "See manifests/deeptutor/README.md for details."

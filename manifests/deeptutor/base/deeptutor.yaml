@@ -61,87 +61,28 @@ spec:
     spec:
       securityContext:
         fsGroup: 1000
-      initContainers:
-        # Seed system.json on first boot when the PVC is empty. Behind ingress the
-        # browser cannot reach localhost:8001, so network settings must exist
-        # before the Settings UI can save. Uses upstream settings APIs only.
-        - name: seed-network-settings
-          image: ghcr.io/hkuds/deeptutor:1.4.10
-          imagePullPolicy: IfNotPresent
-          env:
-            - name: DEEPTUTOR_SEED_PUBLIC_URL
-              value: "https://tutor.j3laserna.me"
-          command:
-            - python
-            - -c
-            - |
-              import os
-              from pathlib import Path
-
-              from deeptutor.services.setup import init_user_directories
-              from deeptutor.services.config import get_runtime_settings_service
-              from deeptutor.services.config.runtime_settings import ensure_runtime_settings_files
-
-              public = os.environ["DEEPTUTOR_SEED_PUBLIC_URL"].rstrip("/")
-              init_user_directories(Path("/app"))
-              runtime = get_runtime_settings_service()
-              system = runtime.load_system(include_process_overrides=False)
-              if not (
-                  system.get("next_public_api_base_external")
-                  or system.get("next_public_api_base")
-              ):
-                  runtime.save_system(
-                      {
-                          "backend_port": 8001,
-                          "frontend_port": 3782,
-                          "next_public_api_base_external": public,
-                          "next_public_api_base": public,
-                          "cors_origins": [public],
-                      }
-                  )
-                  print(f"Seeded network settings for {public}")
-              else:
-                  print("Network settings already configured, skipping")
-              ensure_runtime_settings_files()
-          volumeMounts:
-            - name: data
-              mountPath: /app/data
       containers:
-        - name: deeptutor
+        # Backend and frontend as separate containers (no supervisord). Same pod
+        # network namespace — frontend proxies /api to 127.0.0.1:8001.
+        - name: backend
           image: ghcr.io/hkuds/deeptutor:1.4.10
           imagePullPolicy: IfNotPresent
-          # Upstream entrypoint gosu-drops to UID 1000 before supervisord, which
-          # breaks logging to /dev/fd/* in Kubernetes. Keep entrypoint setup, but
-          # start supervisord as root; programs drop to deeptutor via ConfigMap.
-          command:
-            - /bin/bash
-            - -ec
-            - |
-              sed 's/exec gosu deeptutor \/usr\/bin\/supervisord/exec \/usr\/bin\/supervisord/' \
-                /app/entrypoint.sh | /bin/bash -s
+          securityContext:
+            runAsUser: 1000
+            runAsGroup: 1000
+          command: ["/bin/bash", "/app/start-backend.sh"]
+          env:
+            - name: PYTHONPATH
+              value: "/app"
+            - name: PYTHONUNBUFFERED
+              value: "1"
           ports:
-            - name: frontend
-              containerPort: 3782
-              protocol: TCP
             - name: backend
               containerPort: 8001
               protocol: TCP
           volumeMounts:
-            # Full data tree (matches upstream compose.yaml). v1.4.3+ stores
-            # accounts/grants/JWT secret in data/system; per-user workspaces in data/users.
             - name: data
               mountPath: /app/data
-            - name: supervisor-config
-              mountPath: /etc/supervisor/conf.d/deeptutor.conf
-              subPath: deeptutor.conf
-              readOnly: true
-          resources:
-            requests:
-              memory: "1Gi"
-              cpu: "500m"
-            limits:
-              memory: "4Gi"
-              cpu: "2000m"
           startupProbe:
             httpGet:
               path: /
@@ -165,14 +106,77 @@ spec:
             periodSeconds: 30
             timeoutSeconds: 5
             failureThreshold: 5
+          resources:
+            requests:
+              memory: "512Mi"
+              cpu: "250m"
+            limits:
+              memory: "3Gi"
+              cpu: "2000m"
+        - name: frontend
+          image: ghcr.io/hkuds/deeptutor:1.4.10
+          imagePullPolicy: IfNotPresent
+          securityContext:
+            runAsUser: 1000
+            runAsGroup: 1000
+          # Load runtime JSON settings the same way the image entrypoint does,
+          # then run the stock frontend start script.
+          command:
+            - /bin/bash
+            - -ec
+            - |
+              export DEEPTUTOR_IGNORE_PROCESS_ENV_OVERRIDES=1
+              eval "$(python - <<'PY'
+              import shlex
+              from deeptutor.services.config import export_runtime_settings_to_env
+              for key, value in export_runtime_settings_to_env(overwrite=True).items():
+                  print(f"export {key}={shlex.quote(str(value))}")
+              PY
+              )"
+              export DEEPTUTOR_API_BASE_URL="${DEEPTUTOR_API_BASE_URL:-http://127.0.0.1:${BACKEND_PORT:-8001}}"
+              exec /app/start-frontend.sh
+          ports:
+            - name: frontend
+              containerPort: 3782
+              protocol: TCP
+          volumeMounts:
+            - name: data
+              mountPath: /app/data
+          startupProbe:
+            httpGet:
+              path: /
+              port: 3782
+            initialDelaySeconds: 15
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 30
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 3782
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 3782
+            initialDelaySeconds: 60
+            periodSeconds: 30
+            timeoutSeconds: 5
+            failureThreshold: 5
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "100m"
+            limits:
+              memory: "1Gi"
+              cpu: "1000m"
       restartPolicy: Always
       volumes:
         - name: data
           persistentVolumeClaim:
             claimName: pvc-iscsi-deeptutor-data
-        - name: supervisor-config
-          configMap:
-            name: deeptutor-supervisor
 
 ---
 kind: Service

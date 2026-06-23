@@ -2,40 +2,48 @@
 
 Official image: [`ghcr.io/hkuds/deeptutor:1.4.10`](https://github.com/HKUDS/DeepTutor) (pinned).
 
-v1.4.3+ stores multi-user state under `data/system` (accounts, grants, JWT secret) and `data/users` (per-user workspaces). Use v1.4.3 or newer for multi-user.
-
 ## Architecture
 
 | Path | Service port | Purpose |
 |------|--------------|---------|
-| `https://tutor.j3laserna.me/` | 3782 | Next.js UI |
-| `https://tutor.j3laserna.me/api/...` | 8001 | FastAPI + WebSockets |
+| `https://tutor.j3laserna.me/` | 3782 | Next.js UI (frontend container) |
+| `https://tutor.j3laserna.me/api/...` | 8001 | FastAPI + WebSockets (backend container) |
+
+One pod runs **two containers** (backend + frontend) sharing the `/app/data` PVC. No supervisord — each container runs the upstream start scripts directly.
 
 Browser API base in `system.json`: `https://tutor.j3laserna.me` (no `:8001`, no `/api` suffix).
 
-## What the manifest provides (OOTB)
+## What the manifest provides
 
 - Official GHCR image, no custom build
-- PVC mount: full `/app/data` tree (settings, KBs, memory, **`system`**, **`users`**, partners)
-- `fsGroup: 1000` + upstream entrypoint `chown` (no extra permission init container)
-- ConfigMap override: supervisord runs as root; backend/frontend run as `deeptutor` (`user=` per program). Upstream `gosu` + `/dev/fd/*` logging fails in K8s with `spawnerr: EACCES`.
-- Ingress path split matching upstream’s Caddy example
-- `replicas: 1` + `Recreate` (single-process; required for first-admin registration)
-- Init container: seeds `system.json` network settings on **empty PVC only** (idempotent)
+- PVC: full `/app/data` tree (`user`, `system`, `users`, `memory`, `knowledge_bases`, …)
+- `fsGroup: 1000`; containers run as UID 1000
+- Ingress path split (`/api` → backend, `/` → frontend)
+- `replicas: 1` + `Recreate`
 - TEI embeddings sidecar (`http://embeddings-svc/v1`, model `BAAI/bge-m3`)
 
-## First boot (fresh PVC)
-
-1. Deploy and wait for the pod. The init container writes network settings if missing; the main container reinjects them into the Next.js bundle at start.
-2. Open `https://tutor.j3laserna.me` and configure **Settings → Models** (LLM + embedding provider).
-3. Hard-refresh if the UI was opened before the pod became ready.
-
-## Multi-user
-
-Auth is **off by default** (upstream). Enable when ready:
+## Fresh install
 
 ```bash
-kubectl exec -n deeptutor deploy/deeptutor -- python -c "
+cd gitops/deeptutor
+./wipe-data.sh --yes
+```
+
+Commit/sync the latest manifest, then wait for the pod to become Ready.
+
+### First boot
+
+1. Open `https://tutor.j3laserna.me`
+2. **Settings → Network** — set public API base to `https://tutor.j3laserna.me`, add the same URL under CORS origins
+3. `kubectl rollout restart deployment/deeptutor -n deeptutor`
+4. **Settings → Models** — configure LLM + embedding (`http://embeddings-svc/v1`, `BAAI/bge-m3`)
+
+Auth is **off by default** (upstream). The app opens directly — there is no registration page until you enable auth.
+
+## Multi-user (optional)
+
+```bash
+kubectl exec -n deeptutor deploy/deeptutor -c backend -- python -c "
 from deeptutor.services.config import get_runtime_settings_service
 r = get_runtime_settings_service()
 r.save_auth({
@@ -51,20 +59,13 @@ print('auth.json updated')
 kubectl rollout restart deployment/deeptutor -n deeptutor
 ```
 
-Then:
+Then hard-refresh, visit `/register` (first user = admin), configure models and users.
 
-1. Hard-refresh the browser.
-2. Register at `https://tutor.j3laserna.me/register` (first user = admin).
-3. As admin: **Settings → Models**, `/admin/users`, per-user grants.
-4. Confirm sidebar shows **Logout** / **Admin** (frontend reads `auth.json` at container start).
-
-`cookie_secure: true` is required for HTTPS. Keep `integrations.pocketbase_url` blank (PocketBase is single-user only).
-
-After upgrading from a manifest that omitted `data/system`, register once more at `/register`; user accounts are then persisted across pod restarts.
+`cookie_secure: true` is required for HTTPS.
 
 ## Change public URL
 
-Edit `DEEPTUTOR_SEED_PUBLIC_URL` in `deeptutor.yaml` (init container) **before** first deploy, or update **Settings → Network** on an existing install and restart.
+Update **Settings → Network** on a running install and restart the deployment.
 
 ## Wipe PVC data
 
@@ -73,7 +74,7 @@ cd gitops/deeptutor
 ./wipe-data.sh
 ```
 
-Network settings are re-seeded on next pod start; repeat Models + multi-user steps above.
+Removes **all** top-level directories on the PVC. Repeat the first-boot steps above.
 
 ## Local GPU stack (vLLM)
 

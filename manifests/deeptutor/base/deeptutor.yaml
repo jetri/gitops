@@ -59,10 +59,12 @@ spec:
       labels:
         app: deeptutor
     spec:
-      # Seed system.json on first boot when the PVC is empty. Behind ingress the
-      # browser cannot reach localhost:8001, so network settings must exist
-      # before the Settings UI can save. Uses upstream settings APIs only.
+      securityContext:
+        fsGroup: 1000
       initContainers:
+        # Seed system.json on first boot when the PVC is empty. Behind ingress the
+        # browser cannot reach localhost:8001, so network settings must exist
+        # before the Settings UI can save. Uses upstream settings APIs only.
         - name: seed-network-settings
           image: ghcr.io/hkuds/deeptutor:1.4.10
           imagePullPolicy: IfNotPresent
@@ -120,6 +122,10 @@ spec:
             # accounts/grants/JWT secret in data/system; per-user workspaces in data/users.
             - name: data
               mountPath: /app/data
+            - name: supervisor-config
+              mountPath: /etc/supervisor/conf.d/deeptutor.conf
+              subPath: deeptutor.conf
+              readOnly: true
           resources:
             requests:
               memory: "1Gi"
@@ -155,6 +161,9 @@ spec:
         - name: data
           persistentVolumeClaim:
             claimName: pvc-iscsi-deeptutor-data
+        - name: supervisor-config
+          configMap:
+            name: deeptutor-supervisor
 
 ---
 kind: Service

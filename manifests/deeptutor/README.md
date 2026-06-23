@@ -17,6 +17,8 @@ Browser API base in `system.json`: `https://tutor.j3laserna.me` (no `:8001`, no 
 
 - Official GHCR image, no custom build
 - PVC mount: full `/app/data` tree (settings, KBs, memory, **`system`**, **`users`**, partners)
+- `fsGroup: 1000` + upstream entrypoint `chown` (no extra permission init container)
+- ConfigMap override: supervisord runs as root; backend/frontend run as `deeptutor` (`user=` per program). Upstream `gosu` + `/dev/fd/*` logging fails in K8s with `spawnerr: EACCES`.
 - Ingress path split matching upstream’s Caddy example
 - `replicas: 1` + `Recreate` (single-process; required for first-admin registration)
 - Init container: seeds `system.json` network settings on **empty PVC only** (idempotent)

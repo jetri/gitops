@@ -110,6 +110,15 @@ spec:
         - name: deeptutor
           image: ghcr.io/hkuds/deeptutor:1.4.10
           imagePullPolicy: IfNotPresent
+          # Upstream entrypoint gosu-drops to UID 1000 before supervisord, which
+          # breaks logging to /dev/fd/* in Kubernetes. Keep entrypoint setup, but
+          # start supervisord as root; programs drop to deeptutor via ConfigMap.
+          command:
+            - /bin/bash
+            - -ec
+            - |
+              sed 's/exec gosu deeptutor \/usr\/bin\/supervisord/exec \/usr\/bin\/supervisord/' \
+                /app/entrypoint.sh | /bin/bash -s
           ports:
             - name: frontend
               containerPort: 3782

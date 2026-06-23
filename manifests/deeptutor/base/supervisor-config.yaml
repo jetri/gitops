@@ -6,8 +6,10 @@ metadata:
   labels:
     app: deeptutor
 data:
-  # Same as the upstream image config except pidfile=/tmp — UID 1000 cannot
-  # write /var/run in Kubernetes. /tmp is world-writable in the base image.
+  # K8s-specific supervisord config. The upstream image entrypoint drops to UID
+  # 1000 before supervisord, but /dev/fd/1 and /dev/fd/2 are not writable after
+  # that user switch — dispatchers fail with EACCES. We run supervisord as root
+  # (see deployment command) and drop to deeptutor per program instead.
   deeptutor.conf: |
     [supervisord]
     nodaemon=true
@@ -16,6 +18,7 @@ data:
     pidfile=/tmp/supervisord.pid
 
     [program:backend]
+    user=deeptutor
     command=/bin/bash /app/start-backend.sh
     directory=/app
     autostart=true
@@ -27,6 +30,7 @@ data:
     environment=PYTHONPATH="/app",PYTHONUNBUFFERED="1"
 
     [program:frontend]
+    user=deeptutor
     command=/bin/bash /app/start-frontend.sh
     directory=/app/web
     autostart=true

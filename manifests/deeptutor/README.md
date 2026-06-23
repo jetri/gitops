@@ -1,6 +1,6 @@
 # DeepTutor (Kubernetes)
 
-Official image: [`ghcr.io/hkuds/deeptutor:1.4.10`](https://github.com/HKUDS/DeepTutor) (pinned).
+Custom image: [`docker.io/jetri/deeptutor:1.4.10`](https://hub.docker.com/r/jetri/deeptutor) (built from `fix/deeptutor-ui-improvements` — auth logo fix + per-type quiz retry toggle).
 
 ## Architecture
 

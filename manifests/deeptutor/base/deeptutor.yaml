@@ -65,8 +65,8 @@ spec:
         # Backend and frontend as separate containers (no supervisord). Same pod
         # network namespace — frontend proxies /api to 127.0.0.1:8001.
         - name: backend
-          image: ghcr.io/hkuds/deeptutor:1.4.10
-          imagePullPolicy: IfNotPresent
+          image: docker.io/jetri/deeptutor:1.4.10
+          imagePullPolicy: Always
           securityContext:
             runAsUser: 1000
             runAsGroup: 1000
@@ -114,8 +114,8 @@ spec:
               memory: "3Gi"
               cpu: "2000m"
         - name: frontend
-          image: ghcr.io/hkuds/deeptutor:1.4.10
-          imagePullPolicy: IfNotPresent
+          image: docker.io/jetri/deeptutor:1.4.10
+          imagePullPolicy: Always
           securityContext:
             runAsUser: 1000
             runAsGroup: 1000
